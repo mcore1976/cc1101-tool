@@ -66,20 +66,7 @@ void  htoa(char *ascii_ptr, char *hex_ptr,int len)
     //    ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
     ascii_ptr[final_len] = '\0';
 }
-/*
-unsigned char* htoa(const char* hex_ptr)
-{
-    int len = strlen(hex_ptr);
-    int final_len = len / 2;
-    int i,j;
-    unsigned char* ascii_ptr = (unsigned char*)malloc((final_len+1) * sizeof(*ascii_ptr));
-    for (i=0, j=0; j<final_len; i+=2, j++)
-        ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
-    //    ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
-    ascii_ptr[final_len] = '\0';
-    return ascii_ptr;
-}
-*/
+
 
 /* Execute a complete CC1101 command. */
 static void exec(char *cmdline)
