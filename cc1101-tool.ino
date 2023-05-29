@@ -35,45 +35,60 @@ byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
 // buffer for sending  CC1101
 byte ccsendingbuffer[CCBUFFERSIZE] = {0};
 
+// buffer for hex to ascii conversions 
+char textbuffer[256];
+
+
 // The RX LED has a defined Arduino Pro Micro pin
 int RXLED = 17; 
 
 // check if CLI receiving mode enabled
 int receivingmode = 0; 
 
+// check if CLI jamming mode enabled
+int jammingmode = 0; 
 
 // convert char table to string with hex numbers
 
-void atoh(char *ascii_ptr, char *hex_ptr,int len)
+void asciitohex(char *ascii_ptr, char *hex_ptr,int len)
 {
-    int i;
-    for(i = 0; i < (len / 2); i++)
+    byte i,j,k;
+    for(i = 0; i < len; i++)
     {
-        *(hex_ptr+i)   = (*(ascii_ptr+(2*i)) <= '9') ? ((*(ascii_ptr+(2*i)) - '0') * 16 ) :  (((*(ascii_ptr+(2*i)) - 'A') + 10) << 4);
-        *(hex_ptr+i)  |= (*(ascii_ptr+(2*i)+1) <= '9') ? (*(ascii_ptr+(2*i)+1) - '0') :  (*(ascii_ptr+(2*i)+1) - 'A' + 10);
-    }
+      // high byte first
+      j = ascii_ptr[i] / 16;
+      if (j>9) 
+         { k = j - 10 + 65; }
+      else 
+         { k = j + 48; }
+      hex_ptr[2*i] = k ;
+      // low byte second
+      j = ascii_ptr[i] % 16;
+      if (j>9) 
+         { k = j - 10 + 65; }
+      else
+         { k = j + 48; }
+      hex_ptr[2*i+1] = k ; 
+    };
+    hex_ptr[2*i+2] = 0 ; 
 }
 
 
 // convert string with hex numbers to array of bytes
 
-void  htoa(char *ascii_ptr, char *hex_ptr,int len)
+void  hextoascii(char *ascii_ptr, char *hex_ptr,int len)
 {
     int final_len = len / 2;
     int i,j;
     for (i=0, j=0; j<final_len; i+=2, j++)
         ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
-    //    ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
     ascii_ptr[final_len] = '\0';
 }
-
 
 /* Execute a complete CC1101 command. */
 static void exec(char *cmdline)
 { 
-    // buffer for hex to ascii conversions 
-    char hexbuffer[128];
-       
+        
     char *command = strsep(&cmdline, " ");
 
   // identification of the command & actions
@@ -114,6 +129,7 @@ static void exec(char *cmdline)
          "setAppendStatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
          "receive <mode>               // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          "transmit <times> <hex-vals>  // Send the same packet of 64 hex values over RF \r\n\r\n"
+         "jamming <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
          "echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          ));
             
@@ -295,11 +311,20 @@ static void exec(char *cmdline)
         Serial.print(receivingmode);
         Serial.print(" \r\n"); 
 
+       } else if (strcmp_P(command, PSTR("jamming")) == 0) {
+        jammingmode = atoi(cmdline);
+        Serial.print("\r\nJamming changed to ");
+        Serial.print(jammingmode);
+        Serial.print(" \r\n"); 
+
+
+
        } else if (strcmp_P(command, PSTR("transmit")) == 0) {
         int numberofpackets = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
-        htoa(hexbuffer, cmdline, strlen(cmdline)); 
-        memcpy(ccsendingbuffer, hexbuffer, strlen(cmdline)/2 );       
+        hextoascii((char *)textbuffer, cmdline, strlen(cmdline)); 
+        memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
+        ccsendingbuffer[strlen(cmdline)/2 + 1] = 0x00;       
         Serial.print("\r\nTransmitting RF packets... Please wait...\r\n ");
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
@@ -310,6 +335,11 @@ static void exec(char *cmdline)
               };
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
+        // for DEBUG only
+        asciitohex((char *)ccsendingbuffer, (char *)textbuffer,  strlen(cmdline)/2 );
+        Serial.print("Sent payload: ");
+        Serial.print((char *)textbuffer);
+        Serial.print("\r\n");        
        
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
@@ -383,8 +413,6 @@ void loop() {
 
   // index for serial port characters
   int i = 0;
-  // buffer for conversion of RF packet to hex string
-  char hexbuffer[128];
 
     /* Process incoming commands. */
     while (Serial.available()) {
@@ -408,9 +436,9 @@ void loop() {
             buffer[length++] = data;
             if (do_echo) Serial.write(data);
         }
-    }
+    };
 
-    /* Whatever else needs to be done... */
+    /* Process RF received packets */
    
    //Checks whether something has been received.
   if (ELECHOUSE_cc1101.CheckReceiveFlag() && receivingmode == 1)
@@ -426,9 +454,10 @@ void loop() {
             // put NULL at the end of char buffer
             ccreceivingbuffer[len] = '\0';
 
-            //Print received packet as set of hex values 
-            atoh(hexbuffer, ccreceivingbuffer, 64);
-            Serial.print(hexbuffer);
+            //Print received packet as set of hex values
+            asciitohex((char *)ccreceivingbuffer, (char *)textbuffer,  len);
+            Serial.print("Received payload: ");
+            Serial.print((char *)textbuffer);
             Serial.print("\r\n");
             // Serial.print((char *) ccreceivingbuffer);
  
@@ -439,6 +468,17 @@ void loop() {
 
       };   // end of Check receive flag if
 
-
+      // if jamming mode activate continously send something over RF...
+      if ( jammingmode == 1)
+      { 
+        memcpy(ccsendingbuffer, "ABCDEFGHIJKLMNOP", 16 );
+        ccsendingbuffer[17] = 0x00;       
+        // blink LED RX - only for Arduino Pro Micro
+        digitalWrite(RXLED, LOW);   // set the RX LED ON
+        // send these data to radio over CC1101
+        ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+        // blink LED RX - only for Arduino Pro Micro
+        digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
+      };
  
 }  // end of main LOOP
