@@ -35,6 +35,9 @@ byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
 // buffer for sending  CC1101
 byte ccsendingbuffer[CCBUFFERSIZE] = {0};
 
+// buffer for recording and replaying of single frame
+byte ccrecordingbuffer[CCBUFFERSIZE] = {0};
+
 // buffer for hex to ascii conversions 
 char textbuffer[256];
 
@@ -47,6 +50,10 @@ int receivingmode = 0;
 
 // check if CLI jamming mode enabled
 int jammingmode = 0; 
+
+// check if CLI recording mode enabled
+int recordingmode = 0; 
+
 
 // convert char table to string with hex numbers
 
@@ -121,15 +128,17 @@ static void exec(char *cmdline)
           "setCRC_AF <mode>             // Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n\r\n"
           "setDcFilterOff <mode>        // Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).\r\n\r\n"
           "setManchester <mode>         // Enables Manchester encoding/decoding. 0 = Disable. 1 = Enable.\r\n\r\n"
-         ));
+          "setFEC <mode>                // Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.\r\n\r\n"
+          "setPRE <mode>                // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
+          "setPQT <mode>                // Preamble quality estimator threshold. The preamble quality estimator increases an internal counter by one each time a bit is received that is different from the previous bit, and decreases the counter by 8 each time a bit is received that is the same as the last bit. A threshold of 4∙PQT for this counter is used to gate sync word detection. When PQT=0 a sync word is always accepted.\r\n\r\n"
+           ));
         Serial.println(F(
-         "setFEC <mode>                // Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.\r\n\r\n"
-         "setPRE <mode>                // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
-         "setPQT <mode>                // Preamble quality estimator threshold. The preamble quality estimator increases an internal counter by one each time a bit is received that is different from the previous bit, and decreases the counter by 8 each time a bit is received that is the same as the last bit. A threshold of 4∙PQT for this counter is used to gate sync word detection. When PQT=0 a sync word is always accepted.\r\n\r\n"
-         "setAppendStatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
+       "setAppendStatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
          "receive <mode>               // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          "transmit <times> <hex-vals>  // Send the same packet of 64 hex values over RF \r\n\r\n"
          "jamming <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
+         "record <mode>                // Enable or disable recording of single frame. 1 = enabled, 0 = disabled\r\n\r\n"
+         "replay <number>              // Replay previously recorded frame on selected band number of times\r\n\r\n"
          "echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          ));
             
@@ -340,7 +349,29 @@ static void exec(char *cmdline)
         Serial.print("Sent payload: ");
         Serial.print((char *)textbuffer);
         Serial.print("\r\n");        
-       
+
+    } else if (strcmp_P(command, PSTR("record")) == 0) {
+        recordingmode = atoi(cmdline);
+        Serial.print("\r\nRecording mode set to ");
+        Serial.print(recordingmode);
+        Serial.print(" \r\n"); 
+
+       } else if (strcmp_P(command, PSTR("replay")) == 0) {
+        int numberofpackets = atoi(strsep(&cmdline, " ")); 
+        // copy previously recorded frame to sending buffer buffer for replay
+        memcpy(ccsendingbuffer, ccrecordingbuffer, CCBUFFERSIZE );
+        Serial.print("\r\nReplaying recorded frame.\r\n ");
+        // blink LED RX - only for Arduino Pro Micro
+        digitalWrite(RXLED, LOW);   // set the RX LED ON
+        for (int i=0; i<numberofpackets; i++)  
+             {
+               // send these data to radio over CC1101
+               ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+              };
+        // blink LED RX - only for Arduino Pro Micro
+        digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
+        Serial.print("Done.\r\n");
+
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
         
@@ -359,7 +390,9 @@ void setup() {
      while (!Serial) {
         ; // wait until USB CDC port connects... Needed for Leonardo only
                      }
-     Serial.println("CC1101 terminal tool connected, use 'help' for list of commands...");
+     Serial.println("CC1101 terminal tool connected, use 'help' for list of commands...\n\r");
+     Serial.println("(C) Adam Loboda 2023\n\r ");
+
      Serial.println();  // print CRLF
 
      // Arduino Pro Micro - RXLED diode will be used for debug blinking
@@ -441,7 +474,7 @@ void loop() {
     /* Process RF received packets */
    
    //Checks whether something has been received.
-  if (ELECHOUSE_cc1101.CheckReceiveFlag() && receivingmode == 1)
+  if (ELECHOUSE_cc1101.CheckReceiveFlag() && (receivingmode == 1 || recordingmode ==1) )
       {
        // blink LED RX - only for Arduino Pro Micro
        digitalWrite(RXLED, LOW);   // set the RX LED ON
@@ -451,15 +484,32 @@ void loop() {
           { 
             //Get received Data and calculate length
             int len = ELECHOUSE_cc1101.ReceiveData(ccreceivingbuffer);
-            // put NULL at the end of char buffer
-            ccreceivingbuffer[len] = '\0';
 
-            //Print received packet as set of hex values
-            asciitohex((char *)ccreceivingbuffer, (char *)textbuffer,  len);
-            Serial.print("Received payload: ");
-            Serial.print((char *)textbuffer);
-            Serial.print("\r\n");
-            // Serial.print((char *) ccreceivingbuffer);
+            if ( receivingmode == 1 )
+               {
+                   // put NULL at the end of char buffer
+                   ccreceivingbuffer[len] = '\0';
+                   //Print received packet as set of hex values
+                   asciitohex((char *)ccreceivingbuffer, (char *)textbuffer,  len);
+                   Serial.print("Received payload: ");
+                   Serial.print((char *)textbuffer);
+                   Serial.print("\r\n");
+                   // Serial.print((char *) ccreceivingbuffer);
+               };   // end of handling receiving mode 
+               
+            if ( recordingmode == 1 )
+               { 
+                   recordingmode = 0;  // clear recording flag
+                   // copy the frame from receiving buffer for replay
+                   memcpy(ccrecordingbuffer, ccreceivingbuffer, CCBUFFERSIZE );
+                   // display info about recorded frame
+                   // put NULL at the end of char buffer
+                   ccreceivingbuffer[len] = '\0';
+                   asciitohex((char *)ccreceivingbuffer, (char *)textbuffer,  len);
+                   Serial.print("Recorded frame with  payload: ");
+                   Serial.print((char *)textbuffer);
+                   Serial.print("\r\n");
+               };   // end of handling frame recording mode 
  
           };   // end of CRC check IF
 
