@@ -39,7 +39,7 @@ byte ccsendingbuffer[CCBUFFERSIZE] = {0};
 byte ccrecordingbuffer[CCBUFFERSIZE] = {0};
 
 // buffer for hex to ascii conversions 
-char textbuffer[256];
+byte textbuffer[256];
 
 
 // The RX LED has a defined Arduino Pro Micro pin
@@ -57,7 +57,7 @@ int recordingmode = 0;
 
 // convert char table to string with hex numbers
 
-void asciitohex(char *ascii_ptr, char *hex_ptr,int len)
+void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
 {
     byte i,j,k;
     for(i = 0; i < len; i++)
@@ -83,6 +83,24 @@ void asciitohex(char *ascii_ptr, char *hex_ptr,int len)
 
 // convert string with hex numbers to array of bytes
 
+void  hextoascii(byte *ascii_ptr, byte *hex_ptr,int len)
+{
+    byte i,j;
+    for(i = 0; i < (len/2); i++)
+     { 
+     j = hex_ptr[i*2];
+     if ((j>47) && (j<58))  ascii_ptr[i] = (j - 48) * 16;
+     if ((j>64) && (j<71))  ascii_ptr[i] = (j - 55) * 16;
+     if ((j>96) && (j<103)) ascii_ptr[i] = (j - 87) * 16;
+     j = hex_ptr[i*2+1];
+     if ((j>47) && (j<58))  ascii_ptr[i] = ascii_ptr[i]  + (j - 48);
+     if ((j>64) && (j<71))  ascii_ptr[i] = ascii_ptr[i]  + (j - 55);
+     if ((j>96) && (j<103)) ascii_ptr[i] = ascii_ptr[i]  + (j - 87);
+     };
+    ascii_ptr[i++] = 0;
+}
+
+/*
 void  hextoascii(char *ascii_ptr, char *hex_ptr,int len)
 {
     int final_len = len / 2;
@@ -91,8 +109,9 @@ void  hextoascii(char *ascii_ptr, char *hex_ptr,int len)
         ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
     ascii_ptr[final_len] = '\0';
 }
-
+*/
 /* Execute a complete CC1101 command. */
+
 static void exec(char *cmdline)
 { 
         
@@ -331,7 +350,7 @@ static void exec(char *cmdline)
        } else if (strcmp_P(command, PSTR("transmit")) == 0) {
         int numberofpackets = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
-        hextoascii((char *)textbuffer, cmdline, strlen(cmdline)); 
+        hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
         memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
         ccsendingbuffer[strlen(cmdline)/2 + 1] = 0x00;       
         Serial.print("\r\nTransmitting RF packets... Please wait...\r\n ");
@@ -345,7 +364,7 @@ static void exec(char *cmdline)
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
         // for DEBUG only
-        asciitohex((char *)ccsendingbuffer, (char *)textbuffer,  strlen(cmdline)/2 );
+        asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
         Serial.print("Sent payload: ");
         Serial.print((char *)textbuffer);
         Serial.print("\r\n");        
@@ -490,7 +509,7 @@ void loop() {
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
                    //Print received packet as set of hex values
-                   asciitohex((char *)ccreceivingbuffer, (char *)textbuffer,  len);
+                   asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
                    Serial.print("Received payload: ");
                    Serial.print((char *)textbuffer);
                    Serial.print("\r\n");
@@ -505,7 +524,7 @@ void loop() {
                    // display info about recorded frame
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
-                   asciitohex((char *)ccreceivingbuffer, (char *)textbuffer,  len);
+                   asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
                    Serial.print("Recorded frame with  payload: ");
                    Serial.print((char *)textbuffer);
                    Serial.print("\r\n");
