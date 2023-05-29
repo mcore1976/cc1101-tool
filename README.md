@@ -58,6 +58,9 @@ Following commands are available :
     transmit <times> <hex-vals>  // Send the same packet of 64 hex values over RF 
 
     jamming <mode>               // Enable or disable continous jamming on selected band with selected modulation etc... 1 = enabled, 0 = disabled
+    record <mode>                // Enable or disable recording of single frame. 1 = enabled, 0 = disabled
+    
+    replay <number>              // Replay previously recorded frame on selected band number of times
 
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
  
