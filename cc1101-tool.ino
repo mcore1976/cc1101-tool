@@ -25,7 +25,7 @@
 
 #include <avr/pgmspace.h>
 
-#define BUF_LENGTH 192  /* Buffer for the incoming command. */
+#define BUF_LENGTH 256  /* Buffer for the incoming command. */
 
 static bool do_echo = true;
 
@@ -39,7 +39,7 @@ byte ccsendingbuffer[CCBUFFERSIZE] = {0};
 byte ccrecordingbuffer[CCBUFFERSIZE] = {0};
 
 // buffer for hex to ascii conversions 
-byte textbuffer[192];
+byte textbuffer[256];
 
 
 // The RX LED has a defined Arduino Pro Micro pin
@@ -562,7 +562,7 @@ void loop() {
     /* Process RF received packets */
    
    //Checks whether something has been received.
-  if (ELECHOUSE_cc1101.CheckReceiveFlag() && (receivingmode == 1 || recordingmode ==1) )
+  if (ELECHOUSE_cc1101.CheckReceiveFlag() && (receivingmode == 1 || recordingmode == 1) )
       {
        // blink LED RX - only for Arduino Pro Micro
        digitalWrite(RXLED, LOW);   // set the RX LED ON
