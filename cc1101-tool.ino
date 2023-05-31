@@ -643,12 +643,14 @@ void loop() {
       // if jamming mode activate continously send something over RF...
       if ( jammingmode == 1)
       { 
-        memcpy(ccsendingbuffer, "ABCDEFGHIJKLMNOPQRSTUVWQYZ1234567890abcdefghijklmnopqrstuvwxyz!", 63 );
-        ccsendingbuffer[64] = 0x00;       
+        // populate cc1101 sending buffer with random values
+        randomSeed(analogRead(0));
+        for (i = 0; i<64; i++)
+           { ccsendingbuffer[i] = (byte)random(255);  };        
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         // send these data to radio over CC1101
-        ELECHOUSE_cc1101.SendData(ccsendingbuffer,64);
+        ELECHOUSE_cc1101.SendData(ccsendingbuffer,60);
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
       };
