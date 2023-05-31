@@ -59,10 +59,10 @@ Following commands are available :
 
     jamming <mode>               // Enable or disable continous jamming on selected band with selected modulation etc... 1 = enabled, 0 = disabled
     
-    record <mode>                // Enable or disable recording of single frame. 1 = enabled, 0 = disabled
+    record <mode>                // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled
     
-    replay <number>              // Replay previously recorded frame on selected band number of times
-
+    replay <N>                   // Replay N last recorded frames.
+    
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
     
     x                            // Stops activities like jamming/receiving/recording packets
