@@ -218,221 +218,221 @@ static void exec(char *cmdline)
     } else if (strcmp_P(command, PSTR("setmodulation")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setModulation(setting);
-        Serial.print("\r\nModulation: ");
-        if (setting == 0) { Serial.print("2-FSK"); }
-        else if (setting == 1) { Serial.print("GFSK"); }
-        else if (setting == 2) { Serial.print("ASK/OOK"); }
-        else if (setting == 3) { Serial.print("4-FSK"); }
-        else if (setting == 4) { Serial.print("MSK"); };  
-        Serial.print(" \r\n");
+        Serial.print(F("\r\nModulation: "));
+        if (setting == 0) { Serial.print(F("2-FSK")); }
+        else if (setting == 1) { Serial.print(F("GFSK")); }
+        else if (setting == 2) { Serial.print(F("ASK/OOK")); }
+        else if (setting == 3) { Serial.print(F("4-FSK")); }
+        else if (setting == 4) { Serial.print(F("MSK")); };  
+        Serial.print(F(" \r\n"));
         
     } else if (strcmp_P(command, PSTR("setmhz")) == 0) {
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setMHZ(settingf1);
-        Serial.print("\r\nFrequency: ");
+        Serial.print(F("\r\nFrequency: "));
         Serial.print(settingf1);
-        Serial.print(" MHz\r\n");
+        Serial.print(F(" MHz\r\n"));
         
     } else if (strcmp_P(command, PSTR("setdeviation")) == 0) {
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setDeviation(settingf1);
-        Serial.print("\r\nDeviation: ");
+        Serial.print(F("\r\nDeviation: "));
         Serial.print(settingf1);
-        Serial.print(" KHz\r\n");        
+        Serial.print(F(" KHz\r\n"));        
         
     } else if (strcmp_P(command, PSTR("setchannel")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setChannel(setting);
-        Serial.print("\r\nChannel:");
+        Serial.print(F("\r\nChannel:"));
         Serial.print(setting);
-        Serial.print("\r\n");        
+        Serial.print(F("\r\n"));        
         
     } else if (strcmp_P(command, PSTR("setchsp")) == 0) {
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setChsp(settingf1);
-        Serial.print("\r\nChann spacing: ");
+        Serial.print(F("\r\nChann spacing: "));
         Serial.print(settingf1);
-        Serial.print(" kHz\r\n");  
+        Serial.print(F(" kHz\r\n"));  
         
     } else if (strcmp_P(command, PSTR("setrxbw")) == 0) {
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setRxBW(settingf1);
-        Serial.print("\r\nRX bandwidth: ");
+        Serial.print(F("\r\nRX bandwidth: "));
         Serial.print(settingf1);
-        Serial.print(" kHz \r\n");  
+        Serial.print(F(" kHz \r\n"));  
         
     } else if (strcmp_P(command, PSTR("setdrate")) == 0) {
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setDRate(settingf1);
-        Serial.print("\r\nDatarate: ");
+        Serial.print(F("\r\nDatarate: "));
         Serial.print(settingf1);
-        Serial.print(" kbaud\r\n");  
+        Serial.print(F(" kbaud\r\n"));  
 
     } else if (strcmp_P(command, PSTR("setpa")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setPA(setting);
-        Serial.print("\r\nTX PWR: ");
+        Serial.print(F("\r\nTX PWR: "));
         Serial.print(setting);
-        Serial.print(" dBm\r\n");  
+        Serial.print(F(" dBm\r\n"));  
         
     } else if (strcmp_P(command, PSTR("setsyncmode")) == 0) {
         int setting = atoi(cmdline);
         ELECHOUSE_cc1101.setSyncMode(setting);
-        Serial.print("\r\nSynchronization: ");
-        if (setting == 0) { Serial.print("No preamble"); }
-        else if (setting == 1) { Serial.print("16 sync bits"); }
-        else if (setting == 2) { Serial.print("16/16 sync bits"); }
-        else if (setting == 3) { Serial.print("30/32 sync bits"); }
-        else if (setting == 4) { Serial.print("No preamble/sync, carrier-sense"); }
-        else if (setting == 5) { Serial.print("15/16 + carrier-sense"); }
-        else if (setting == 6) { Serial.print("16/16 + carrier-sense"); }
-        else if (setting == 7) { Serial.print("30/32 + carrier-sense"); };
-        Serial.print("\r\n");  
+        Serial.print(F("\r\nSynchronization: "));
+        if (setting == 0) { Serial.print(F("No preamble")); }
+        else if (setting == 1) { Serial.print(F("16 sync bits")); }
+        else if (setting == 2) { Serial.print(F("16/16 sync bits")); }
+        else if (setting == 3) { Serial.print(F("30/32 sync bits")); }
+        else if (setting == 4) { Serial.print(F("No preamble/sync, carrier-sense")); }
+        else if (setting == 5) { Serial.print(F("15/16 + carrier-sense")); }
+        else if (setting == 6) { Serial.print(F("16/16 + carrier-sense")); }
+        else if (setting == 7) { Serial.print(F("30/32 + carrier-sense")); };
+        Serial.print(F("\r\n"));  
         
     } else if (strcmp_P(command, PSTR("setsyncword")) == 0) {
         int lowword = atoi(strsep(&cmdline, " "));
         int highword = atoi(cmdline);
         ELECHOUSE_cc1101.setSyncWord(lowword, highword);
-        Serial.print("\r\nSynchronization:\r\n");
-        Serial.print("high = ");
+        Serial.print(F("\r\nSynchronization:\r\n"));
+        Serial.print(F("high = "));
         Serial.print(highword);
-        Serial.print("\r\nlow = ");
+        Serial.print(F("\r\nlow = "));
         Serial.print(lowword);
-        Serial.print("\r\n");  
+        Serial.print(F("\r\n"));  
 
     } else if (strcmp_P(command, PSTR("setadrchk")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setAdrChk(setting);
-        Serial.print("\r\nAddress checking:");
-        if (setting == 0) { Serial.print("No adr chk"); }
-        else if (setting == 1) { Serial.print("Adr chk, no bcast"); }
-        else if (setting == 2) { Serial.print("Adr chk and 0 bcast"); }
-        else if (setting == 3) { Serial.print("Adr chk and 0 and FF bcast"); };
-        Serial.print("\r\n");  
+        Serial.print(F("\r\nAddress checking:"));
+        if (setting == 0) { Serial.print(F("No adr chk")); }
+        else if (setting == 1) { Serial.print(F("Adr chk, no bcast")); }
+        else if (setting == 2) { Serial.print(F("Adr chk and 0 bcast")); }
+        else if (setting == 3) { Serial.print(F("Adr chk and 0 and FF bcast")); };
+        Serial.print(F("\r\n"));  
         
     } else if (strcmp_P(command, PSTR("setaddr")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setAddr(setting);
-        Serial.print("\r\nAddress: ");
+        Serial.print(F("\r\nAddress: "));
         Serial.print(setting);
-        Serial.print("\r\n");  
+        Serial.print(F("\r\n"));  
 
     } else if (strcmp_P(command, PSTR("setwhitedata")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setWhiteData(setting);
-        Serial.print("\r\nWhitening ");
-        if (setting == 0) { Serial.print("OFF"); }
-        else if (setting == 1) { Serial.print("ON"); }
-        Serial.print("\r\n");  
+        Serial.print(F("\r\nWhitening "));
+        if (setting == 0) { Serial.print(F("OFF")); }
+        else if (setting == 1) { Serial.print(F("ON")); }
+        Serial.print(F("\r\n"));  
         
     } else if (strcmp_P(command, PSTR("setpktformat")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setPktFormat(setting);
-        Serial.print("\r\nPacket format: ");
-        if (setting == 0) { Serial.print("Normal mode"); }
-        else if (setting == 1) { Serial.print("Synchronous serial mode"); }
-        else if (setting == 2) { Serial.print("Random TX mode"); }
-        else if (setting == 3) { Serial.print("Asynchronous serial mode"); };
-        Serial.print("\r\n");  
+        Serial.print(F("\r\nPacket format: "));
+        if (setting == 0) { Serial.print(F("Normal mode")); }
+        else if (setting == 1) { Serial.print(F("Synchronous serial mode")); }
+        else if (setting == 2) { Serial.print(F("Random TX mode")); }
+        else if (setting == 3) { Serial.print(F("Asynchronous serial mode")); };
+        Serial.print(F("\r\n"));  
   
     } else if (strcmp_P(command, PSTR("setlengthconfig")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setLengthConfig(setting);
-        Serial.print("\r\nPkt length mode: ");
-        if (setting == 0) { Serial.print("Fixed"); }
-        else if (setting == 1) { Serial.print("Variable"); }
-        else if (setting == 2) { Serial.print("Infinite"); }
-        else if (setting == 3) { Serial.print("Reserved"); };
-        Serial.print("\r\n");  
+        Serial.print(F("\r\nPkt length mode: "));
+        if (setting == 0) { Serial.print(F("Fixed")); }
+        else if (setting == 1) { Serial.print(F("Variable")); }
+        else if (setting == 2) { Serial.print(F("Infinite")); }
+        else if (setting == 3) { Serial.print(F("Reserved")); };
+        Serial.print(F("\r\n"));  
   
     } else if (strcmp_P(command, PSTR("setpacketlength")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setPacketLength(setting);
-        Serial.print("\r\nPkt length: ");
+        Serial.print(F("\r\nPkt length: "));
         Serial.print(setting);
-        Serial.print(" bytes\r\n");  
+        Serial.print(F(" bytes\r\n"));  
         
     } else if (strcmp_P(command, PSTR("setcrc")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setCrc(setting);
-        Serial.print("\r\nCRC: ");
-        if (setting == 0) { Serial.print("Disabled"); }
-        else if (setting == 1) { Serial.print("Enabled"); };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\nCRC checking: "));
+        if (setting == 0) { Serial.print(F("Disabled")); }
+        else if (setting == 1) { Serial.print(F("Enabled")); };
+        Serial.print(F("\r\n")); 
         
     } else if (strcmp_P(command, PSTR("setcrcaf")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setCRC_AF(setting);
-        Serial.print("\r\nCRC Autoflush: ");
-        if (setting == 0) { Serial.print("Disabled"); }
-        else if (setting == 1) { Serial.print("Enabled"); };
-         Serial.print("\r\n"); 
+        Serial.print(F("\r\nCRC Autoflush: "));
+        if (setting == 0) { Serial.print(F("Disabled")); }
+        else if (setting == 1) { Serial.print(F("Enabled")); };
+         Serial.print(F("\r\n")); 
         
      } else if (strcmp_P(command, PSTR("setdcfilteroff")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setDcFilterOff(setting);
-        Serial.print("\r\nDC filter: ");
-        if (setting == 0) { Serial.print("Enabled"); }
-        else if (setting == 1) { Serial.print("Disabled"); };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\nDC filter: "));
+        if (setting == 0) { Serial.print(F("Enabled")); }
+        else if (setting == 1) { Serial.print(F("Disabled")); };
+        Serial.print(F("\r\n")); 
 
      } else if (strcmp_P(command, PSTR("setmanchester")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setManchester(setting);
-        Serial.print("\r\nManchester coding: ");
-        if (setting == 0) { Serial.print("Disabled"); }
-        else if (setting == 1) { Serial.print("Enabled"); };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\nManchester coding: "));
+        if (setting == 0) { Serial.print(F("Disabled")); }
+        else if (setting == 1) { Serial.print(F("Enabled")); };
+        Serial.print(F("\r\n")); 
 
      } else if (strcmp_P(command, PSTR("setfec")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setFEC(setting);
-        Serial.print("\r\nFEC: ");
-        if (setting == 0) { Serial.print("Disabled"); }
-        else if (setting == 1) { Serial.print("Enabled"); };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\nForward Error Correction: "));
+        if (setting == 0) { Serial.print(F("Disabled")); }
+        else if (setting == 1) { Serial.print(F("Enabled")); };
+        Serial.print(F("\r\n")); 
         
      } else if (strcmp_P(command, PSTR("setpre")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setPRE(setting);
-        Serial.print("\r\nMinimum preamble bytes:");
+        Serial.print(F("\r\nMinimum preamble bytes:"));
         Serial.print(setting);
-        Serial.print(" means 0 = 2 bytes, 1 = 3b, 2 = 4b, 3 = 6b, 4 = 8b, 5 = 12b, 6 = 16b, 7 = 24 bytes\r\n"); 
-        Serial.print("\r\n"); 
+        Serial.print(F(" means 0 = 2 bytes, 1 = 3b, 2 = 4b, 3 = 6b, 4 = 8b, 5 = 12b, 6 = 16b, 7 = 24 bytes\r\n")); 
+        Serial.print(F("\r\n")); 
 
       } else if (strcmp_P(command, PSTR("setpqt")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setPQT(setting);
-        Serial.print("\r\nPQT: ");
+        Serial.print(F("\r\nPQT: "));
         Serial.print(setting);
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\n")); 
 
        } else if (strcmp_P(command, PSTR("setappendstatus")) == 0) {
         setting = atoi(cmdline);
         ELECHOUSE_cc1101.setAppendStatus(setting);
-        Serial.print("\r\nStatus bytes appending: ");
-        if (setting == 0) { Serial.print("Enabled"); }
-        else if (setting == 1) { Serial.print("Disabled"); };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\nStatus bytes appending: "));
+        if (setting == 0) { Serial.print(F("Enabled")); }
+        else if (setting == 1) { Serial.print(F("Disabled")); };
+        Serial.print(F("\r\n")); 
 
        } else if (strcmp_P(command, PSTR("receive")) == 0) {
         receivingmode = atoi(cmdline);
-        Serial.print("\r\nReceiving and printing RF packet changed to ");
-        if (receivingmode == 0) { Serial.print("Disabled"); }
+        Serial.print(F("\r\nReceiving and printing RF packet changed to "));
+        if (receivingmode == 0) { Serial.print(F("Disabled")); }
         else if (receivingmode == 1)
-               { Serial.print("Enabled"); 
+               { Serial.print(F("Enabled")); 
                  jammingmode = 0; };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\n")); 
  
 
        } else if (strcmp_P(command, PSTR("jamming")) == 0) {
         jammingmode = atoi(cmdline);
-        Serial.print("\r\nJamming changed to ");
-        if (jammingmode == 0) { Serial.print("Disabled"); }
+        Serial.print(F("\r\nJamming changed to "));
+        if (jammingmode == 0) { Serial.print(F("Disabled")); }
         else if (jammingmode == 1) 
-               { Serial.print("Enabled"); 
+               { Serial.print(F("Enabled")); 
                  receivingmode = 0; };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\n")); 
  
 
        } else if (strcmp_P(command, PSTR("transmit")) == 0) {
@@ -455,24 +455,24 @@ static void exec(char *cmdline)
                 digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
                 // for DEBUG only
                 asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
-                Serial.print("Sent frame: ");
+                Serial.print(F("Sent frame: "));
                 Serial.print((char *)textbuffer);
-                Serial.print("\r\n"); }
-        else { Serial.print("Payload too long.\r\n"); };
+                Serial.print(F("\r\n")); }
+        else { Serial.print(F("Payload too long.\r\n")); };
 
     } else if (strcmp_P(command, PSTR("record")) == 0) {
         recordingmode = atoi(cmdline);
-        Serial.print("\r\nRecording mode set to ");
-        if (recordingmode == 0) { Serial.print("Disabled"); }
-        else if (recordingmode == 1) { Serial.print("Enabled"); };
-        Serial.print("\r\n"); 
+        Serial.print(F("\r\nRecording mode set to "));
+        if (recordingmode == 0) { Serial.print(F("Disabled")); }
+        else if (recordingmode == 1) { Serial.print(F("Enabled")); };
+        Serial.print(F("\r\n")); 
  
 
        } else if (strcmp_P(command, PSTR("replay")) == 0) {
         setting = atoi(strsep(&cmdline, " ")); 
         // copy previously recorded frame to sending buffer buffer for replay
         memcpy(ccsendingbuffer, ccrecordingbuffer, CCBUFFERSIZE );
-        Serial.print("\r\nReplaying recorded frame.\r\n ");
+        Serial.print(F("\r\nReplaying recorded frame.\r\n "));
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         for (int i=0; i<setting; i++)  
@@ -482,7 +482,7 @@ static void exec(char *cmdline)
               };
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
-        Serial.print("Done.\r\n");
+        Serial.print(F("Done.\r\n"));
 
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
@@ -492,14 +492,14 @@ static void exec(char *cmdline)
         receivingmode = 0;
         jammingmode = 0;
         recordingmode = 0;
-        Serial.print("\r\n");
+        Serial.print(F("\r\n"));
 
         // command 'init' initializes board with default settings
     } else if (strcmp_P(command, PSTR("init")) == 0) {
         // init cc1101
         cc1101initialize();
         // give feedback
-        Serial.print("CC1101 initialized\r\n");
+        Serial.print(F("CC1101 initialized\r\n"));
           
     } else {
         Serial.print(F("Error: Unknown command: "));
@@ -516,8 +516,8 @@ void setup() {
      while (!Serial) {
         ; // wait until USB CDC port connects... Needed for Leonardo only
                      }
-     Serial.println("CC1101 terminal tool connected, use 'help' for list of commands...\n\r");
-     Serial.println("(C) Adam Loboda 2023\n\r  ");
+     Serial.println(F("CC1101 terminal tool connected, use 'help' for list of commands...\n\r"));
+     Serial.println(F("(C) Adam Loboda 2023\n\r  "));
 
      Serial.println();  // print CRLF
 
@@ -579,9 +579,9 @@ void loop() {
                    ccreceivingbuffer[len] = '\0';
                    //Print received packet as set of hex values
                    asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
-                   Serial.print("Received payload: ");
+                   Serial.print(F("Received payload: "));
                    Serial.print((char *)textbuffer);
-                   Serial.print("\r\n");
+                   Serial.print(F("\r\n"));
                    // Serial.print((char *) ccreceivingbuffer);
                };   // end of handling receiving mode 
                
@@ -594,9 +594,9 @@ void loop() {
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
                    asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
-                   Serial.print("Recorded frame with  payload: ");
+                   Serial.print(F("Recorded frame with  payload: "));
                    Serial.print((char *)textbuffer);
-                   Serial.print("\r\n");
+                   Serial.print(F("\r\n"));
                };   // end of handling frame recording mode 
  
           };   // end of CRC check IF
