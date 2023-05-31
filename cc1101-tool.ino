@@ -444,7 +444,7 @@ static void exec(char *cmdline)
                 for (int i=0; i<setting; i++)  
                      {
                       // send these data to radio over CC1101
-                      ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+                      ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)(strlen(cmdline)/2));
                       };
                 // blink LED RX - only for Arduino Pro Micro
                 digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
@@ -453,7 +453,7 @@ static void exec(char *cmdline)
                 Serial.print(F("Sent frame: "));
                 Serial.print((char *)textbuffer);
                 Serial.print(F("\r\n")); }
-        else { Serial.print(F("Payload too long or too short.\r\n")); };
+         else { Serial.print(F("Wrong parameters.\r\n")); };
 
     } else if (strcmp_P(command, PSTR("record")) == 0) {
         recordingmode = atoi(cmdline);
@@ -488,7 +488,7 @@ static void exec(char *cmdline)
                // take next frame from the buffer  for replay
                memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], bigrecordingbuffer[bigrecordingbufferpos] );             
                // send these data to radio over CC1101
-               ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+               ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)bigrecordingbuffer[bigrecordingbufferpos]);
                // increase position to the buffer and check exception
                bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
                if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
@@ -648,7 +648,7 @@ void loop() {
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         // send these data to radio over CC1101
-        ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+        ELECHOUSE_cc1101.SendData(ccsendingbuffer,64);
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
       };
