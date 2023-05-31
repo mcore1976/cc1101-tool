@@ -128,40 +128,42 @@ static void exec(char *cmdline)
           "setmhz <frequency>           // Here you can set your basic frequency. default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ.\r\n\r\n"
           "setdeviation <deviation>     // Set the Frequency deviation in kHz. Value from 1.58 to 380.85. Default is 47.60 kHz.\r\n\r\n"
           "setchannel <channel>         // Set the Channelnumber from 0 to 255. Default is cahnnel 0.\r\n\r\n"
-         ));
-        Serial.println(F(
           "setchsp <spacing>            // The channel spacing is multiplied by the channel number CHAN and added to the base frequency in kHz. Value from 25.39 to 405.45. Default is 199.95 kHz. \r\n\r\n"
           "setrxbw <Receive bandwidh>   // Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.\r\n\r\n"
+         ));
+        Serial.println(F(
           "setdrate <datarate>          // Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!\r\n\r\n"
           "setpa <power value>          // Set TxPower. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!\r\n\r\n"
           "setsyncmode  <sync mode>     // Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
           "setsyncword <LOW, HIGH>      // Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low)\r\n\r\n"
-         ));
-        Serial.println(F(
           "setadrchk <address check>    // Controls address check configuration of received packages. 0 = No address check. 1 = Address check, no broadcast. 2 = Address check and 0 (0x00) broadcast. 3 = Address check and 0 (0x00) and 255 (0xFF) broadcast.\r\n\r\n"
           "setaddr <address>            // Address used for packet filtration. Optional broadcast addresses are 0 (0x00) and 255 (0xFF).\r\n\r\n"
+         ));
+        Serial.println(F(
           "setwhitedata <whitening>     // Turn data whitening on / off. 0 = Whitening off. 1 = Whitening on.\r\n\r\n"
           "setpktformat <pkt format>    // Format of RX and TX data. 0 = Normal mode, use FIFOs for RX and TX. 1 = Synchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins. 2 = Random TX mode; sends random data using PN9 generator.  3 = Asynchronous serial mode\r\n\r\n"
           "setlengthconfig <mode>       // 0 = Fixed packet length mode. 1 = Variable packet length mode. 2 = Infinite packet length mode. 3 = Reserved \r\n\r\n"
           "setpacketlength <mode>       // Indicates the packet length when fixed packet length mode is enabled. If variable packet length mode is used, this value indicates the maximum packet length allowed.\r\n\r\n"
-         ));
-        Serial.println(F(
           "setcrc <mode>                // 1 = CRC calculation in TX and CRC check in RX enabled. 0 = CRC disabled for TX and RX.\r\n\r\n"
           "setcrcaf <mode>              // Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n\r\n"
           "setdcfilteroff <mode>        // Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).\r\n\r\n"
+         ));
+        Serial.println(F(
           "setmanchester <mode>         // Enables Manchester encoding/decoding. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setfec <mode>                // Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setpre <mode>                // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode>                // Preamble quality estimator threshold. \r\n\r\n"
+          "setappendstatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
+          "receive <mode>               // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
+          "transmit <times> <hex-vals>  // Send the same packet of 64 hex values over RF \r\n\r\n"
            ));
         Serial.println(F(
-         "setappendstatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
-         "receive <mode>               // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
-         "transmit <times> <hex-vals>  // Send the same packet of 64 hex values over RF \r\n\r\n"
          "jamming <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
          "record <mode>                // Enable or disable recording of single frame. 1 = enabled, 0 = disabled\r\n\r\n"
          "replay <number>              // Replay previously recorded frame on selected band number of times\r\n\r\n"
          "echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
+         "x                            // Stops jamming/receiving/recording packets.\r\n\r\n"
+         "init                         // Restarts CC1101 board with default parameters\r\n\r\n"
          ));
             
     } else if (strcmp_P(command, PSTR("setmodulation")) == 0) {
@@ -368,7 +370,9 @@ static void exec(char *cmdline)
         receivingmode = atoi(cmdline);
         Serial.print("\r\nReceiving and printing RF packet changed to ");
         if (receivingmode == 0) { Serial.print("Disabled"); }
-        else if (receivingmode == 1) { Serial.print("Enabled"); };
+        else if (receivingmode == 1)
+               { Serial.print("Enabled"); 
+                 jammingmode = 0; };
         Serial.print("\r\n"); 
  
 
@@ -376,31 +380,36 @@ static void exec(char *cmdline)
         jammingmode = atoi(cmdline);
         Serial.print("\r\nJamming changed to ");
         if (jammingmode == 0) { Serial.print("Disabled"); }
-        else if (jammingmode == 1) { Serial.print("Enabled"); };
+        else if (jammingmode == 1) 
+               { Serial.print("Enabled"); 
+                 receivingmode = 0; };
         Serial.print("\r\n"); 
  
 
        } else if (strcmp_P(command, PSTR("transmit")) == 0) {
         int setting = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
-        hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
-        memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
-        ccsendingbuffer[strlen(cmdline)/2] = 0x00;       
-        Serial.print("\r\nTransmitting RF packets.\r\n ");
-        // blink LED RX - only for Arduino Pro Micro
-        digitalWrite(RXLED, LOW);   // set the RX LED ON
-        for (int i=0; i<setting; i++)  
-             {
-               // send these data to radio over CC1101
-               ELECHOUSE_cc1101.SendData(ccsendingbuffer);
-              };
-        // blink LED RX - only for Arduino Pro Micro
-        digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
-        // for DEBUG only
-        asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
-        Serial.print("Sent frame: ");
-        Serial.print((char *)textbuffer);
-        Serial.print("\r\n");        
+        if (strlen(cmdline)<64)
+        { 
+                hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
+                memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
+                ccsendingbuffer[strlen(cmdline)/2] = 0x00;       
+                Serial.print("\r\nTransmitting RF packets.\r\n ");
+                // blink LED RX - only for Arduino Pro Micro
+                digitalWrite(RXLED, LOW);   // set the RX LED ON
+                for (int i=0; i<setting; i++)  
+                     {
+                      // send these data to radio over CC1101
+                      ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+                      };
+                // blink LED RX - only for Arduino Pro Micro
+                digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
+                // for DEBUG only
+                asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
+                Serial.print("Sent frame: ");
+                Serial.print((char *)textbuffer);
+                Serial.print("\r\n"); }
+        else { Serial.print("Payload too long.\r\n"); };
 
     } else if (strcmp_P(command, PSTR("record")) == 0) {
         recordingmode = atoi(cmdline);
@@ -428,6 +437,53 @@ static void exec(char *cmdline)
 
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
+
+        // command 'x' stops jamming, receiveing, recording...
+    } else if (strcmp_P(command, PSTR("x")) == 0) {
+        receivingmode = 0;
+        jammingmode = 0;
+        recordingmode = 0;
+        Serial.print("\r\n");
+
+        // command 'init' initializes board with default settings
+    } else if (strcmp_P(command, PSTR("init")) == 0) {
+        byte sck = 15;   
+        byte miso = 14;
+        byte mosi = 16;
+        byte ss = 10;
+        int gdo0 = 3;
+        // initializing library with custom pins selected
+        ELECHOUSE_cc1101.setSpiPin(sck, miso, mosi, ss);
+        ELECHOUSE_cc1101.Init();                // must be set to initialize the cc1101!
+        ELECHOUSE_cc1101.setGDO0(gdo0);         // set lib internal gdo pin (gdo0). Gdo2 not use for this example.
+        ELECHOUSE_cc1101.setCCMode(1);          // set config for internal transmission mode.
+        ELECHOUSE_cc1101.setModulation(2);      // set modulation mode. 0 = 2-FSK, 1 = GFSK, 2 = ASK/OOK, 3 = 4-FSK, 4 = MSK.
+        ELECHOUSE_cc1101.setMHZ(433.92);        // Here you can set your basic frequency. The lib calculates the frequency automatically (default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ. Read More info from datasheet.
+        ELECHOUSE_cc1101.setDeviation(47.60);   // Set the Frequency deviation in kHz. Value from 1.58 to 380.85. Default is 47.60 kHz.
+        ELECHOUSE_cc1101.setChannel(0);         // Set the Channelnumber from 0 to 255. Default is cahnnel 0.
+        ELECHOUSE_cc1101.setChsp(199.95);       // The channel spacing is multiplied by the channel number CHAN and added to the base frequency in kHz. Value from 25.39 to 405.45. Default is 199.95 kHz.
+        ELECHOUSE_cc1101.setRxBW(812.50);       // Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.
+        ELECHOUSE_cc1101.setDRate(1.2);         // Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!
+        ELECHOUSE_cc1101.setPA(10);             // Set TxPower. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!
+        ELECHOUSE_cc1101.setSyncMode(2);        // Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.
+        ELECHOUSE_cc1101.setSyncWord(127, 127); // Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low)
+        ELECHOUSE_cc1101.setAdrChk(0);          // Controls address check configuration of received packages. 0 = No address check. 1 = Address check, no broadcast. 2 = Address check and 0 (0x00) broadcast. 3 = Address check and 0 (0x00) and 255 (0xFF) broadcast.
+        ELECHOUSE_cc1101.setAddr(0);            // Address used for packet filtration. Optional broadcast addresses are 0 (0x00) and 255 (0xFF).
+        ELECHOUSE_cc1101.setWhiteData(0);       // Turn data whitening on / off. 0 = Whitening off. 1 = Whitening on.
+        ELECHOUSE_cc1101.setPktFormat(0);       // Format of RX and TX data. 0 = Normal mode, use FIFOs for RX and TX. 1 = Synchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins. 2 = Random TX mode; sends random data using PN9 generator. Used for test. Works as normal mode, setting 0 (00), in RX. 3 = Asynchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins.
+        ELECHOUSE_cc1101.setLengthConfig(1);    // 0 = Fixed packet length mode. 1 = Variable packet length mode. 2 = Infinite packet length mode. 3 = Reserved
+        ELECHOUSE_cc1101.setPacketLength(0);    // Indicates the packet length when fixed packet length mode is enabled. If variable packet length mode is used, this value indicates the maximum packet length allowed.
+        ELECHOUSE_cc1101.setCrc(0);             // 1 = CRC calculation in TX and CRC check in RX enabled. 0 = CRC disabled for TX and RX.
+        ELECHOUSE_cc1101.setCRC_AF(0);          // Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.
+        ELECHOUSE_cc1101.setDcFilterOff(0);     // Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).
+        ELECHOUSE_cc1101.setManchester(0);      // Enables Manchester encoding/decoding. 0 = Disable. 1 = Enable.
+        ELECHOUSE_cc1101.setFEC(0);             // Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.
+        ELECHOUSE_cc1101.setPRE(0);             // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24
+        ELECHOUSE_cc1101.setPQT(0);             // Preamble quality estimator threshold. The preamble quality estimator increases an internal counter by one each time a bit is received that is different from the previous bit, and decreases the counter by 8 each time a bit is received that is the same as the last bit. A threshold of 4∙PQT for this counter is used to gate sync word detection. When PQT=0 a sync word is always accepted.
+        ELECHOUSE_cc1101.setAppendStatus(0);    // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.
+        Serial.print("CC1101 initialized\r\n");
+
+        
         
     } else {
         Serial.print(F("Error: Unknown command: "));
@@ -439,7 +495,7 @@ static void exec(char *cmdline)
 void setup() {
 
      // initialize USB Serial Port CDC
-     Serial.begin(9600);
+     Serial.begin(115200);
 
      while (!Serial) {
         ; // wait until USB CDC port connects... Needed for Leonardo only
@@ -575,8 +631,8 @@ void loop() {
       // if jamming mode activate continously send something over RF...
       if ( jammingmode == 1)
       { 
-        memcpy(ccsendingbuffer, "ABCDEFGHIJKLMNOP", 16 );
-        ccsendingbuffer[17] = 0x00;       
+        memcpy(ccsendingbuffer, "ABCDEFGHIJKLMNOPQRSTUVWQYZ1234567890abcdefghijklmnopqrstuvwxyz!", 63 );
+        ccsendingbuffer[64] = 0x00;       
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         // send these data to radio over CC1101
