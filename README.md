@@ -64,7 +64,10 @@ Following commands are available :
     replay <number>              // Replay previously recorded frame on selected band number of times
 
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
- 
+    
+    x                            // Stops activities like jamming/receiving/recording packets
+    
+    init                         // Restarts CC1101 board with default parameters 
  
 The code uses SmartRC library (modified Electrohouse library by Little_S@tan) which allows to customize ALL transmission parameters in human readable format without using SmartRF studio from TI (CC1101 parameter customization tool). To use it please download following ZIP library from following github link https://github.com/LSatan/SmartRC-CC1101-Driver-Lib and attach it to the script in Arduino IDE.
 
