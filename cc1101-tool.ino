@@ -23,6 +23,8 @@
 
 #define CCBUFFERSIZE 64
 
+#define RECORDINGBUFFERSIZE 512
+
 #include <avr/pgmspace.h>
 
 #define BUF_LENGTH 256  /* Buffer for the incoming command. */
@@ -38,8 +40,16 @@ byte ccsendingbuffer[CCBUFFERSIZE] = {0};
 // buffer for recording and replaying of single frame
 byte ccrecordingbuffer[CCBUFFERSIZE] = {0};
 
+// buffer for recording and replaying of many frames
+byte bigrecordingbuffer[RECORDINGBUFFERSIZE] = {0};
+
+// position in big recording buffer
+int bigrecordingbufferpos = 0; 
+
+
 // buffer for hex to ascii conversions 
-byte textbuffer[256];
+byte textbuffer[BUF_LENGTH];
+
 
 
 // The RX LED has a defined Arduino Pro Micro pin
@@ -165,7 +175,7 @@ static void exec(char *cmdline)
 { 
         
     char *command = strsep(&cmdline, " ");
-    int setting;
+    int setting, len;
     float settingf1;
     float settingf2;
     
@@ -208,8 +218,8 @@ static void exec(char *cmdline)
            ));
         Serial.println(F(
          "jamming <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
-         "record <mode>                // Enable or disable recording of single frame. 1 = enabled, 0 = disabled\r\n\r\n"
-         "replay <number>              // Replay previously recorded frame on selected band number of times\r\n\r\n"
+         "record <mode>                // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled\r\n\r\n"
+         "replay <N>                   // Replay N last recorded frames.\r\n\r\n"
          "echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          "x                            // Stops jamming/receiving/recording packets.\r\n\r\n"
          "init                         // Restarts CC1101 board with default parameters\r\n\r\n"
@@ -438,7 +448,7 @@ static void exec(char *cmdline)
        } else if (strcmp_P(command, PSTR("transmit")) == 0) {
         int setting = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
-        if (strlen(cmdline)<64)
+        if ((strlen(cmdline)<64) && (strlen(cmdline)>0) )
         { 
                 hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
                 memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
@@ -458,31 +468,52 @@ static void exec(char *cmdline)
                 Serial.print(F("Sent frame: "));
                 Serial.print((char *)textbuffer);
                 Serial.print(F("\r\n")); }
-        else { Serial.print(F("Payload too long.\r\n")); };
+        else { Serial.print(F("Payload too long or too short.\r\n")); };
 
     } else if (strcmp_P(command, PSTR("record")) == 0) {
         recordingmode = atoi(cmdline);
         Serial.print(F("\r\nRecording mode set to "));
-        if (recordingmode == 0) { Serial.print(F("Disabled")); }
-        else if (recordingmode == 1) { Serial.print(F("Enabled")); };
+        if (recordingmode == 0) 
+            { 
+               Serial.print(F("Disabled")); 
+               bigrecordingbufferpos = 0; 
+             }
+        else if (recordingmode == 1)
+            { Serial.print(F("Enabled"));
+               bigrecordingbufferpos = 0;
+               // flush buffer for recording 
+               for (int i = 0; i < RECORDINGBUFFERSIZE; i++)
+                    { bigrecordingbuffer[RECORDINGBUFFERSIZE] = 0; };
+               };
         Serial.print(F("\r\n")); 
  
 
        } else if (strcmp_P(command, PSTR("replay")) == 0) {
         setting = atoi(strsep(&cmdline, " ")); 
-        // copy previously recorded frame to sending buffer buffer for replay
-        memcpy(ccsendingbuffer, ccrecordingbuffer, CCBUFFERSIZE );
-        Serial.print(F("\r\nReplaying recorded frame.\r\n "));
+        Serial.print(F("\r\nReplaying recorded frames.\r\n "));
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
+        // rewind recording buffer position to the beginning
+        bigrecordingbufferpos = 0;
+        // start reading and sending frames from the buffer
         for (int i=0; i<setting; i++)  
-             {
+             { 
+               // read length of the recorded frame first from the buffer
+               len = bigrecordingbuffer[bigrecordingbufferpos];
+               // take next frame from the buffer  for replay
+               memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], bigrecordingbuffer[bigrecordingbufferpos] );             
                // send these data to radio over CC1101
                ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+               // increase position to the buffer
+               bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
+               if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
+               // 
               };
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
         Serial.print(F("Done.\r\n"));
+        // rewind buffer position
+        bigrecordingbufferpos = 0;
 
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
@@ -526,7 +557,9 @@ void setup() {
 
      // initialize CC1101 module with preffered parameters
      cc1101initialize();
-     
+
+     // setup variables
+     bigrecordingbufferpos = 0;
 }
 
 
@@ -577,6 +610,10 @@ void loop() {
                {
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
+                   // flush textbuffer
+                   for (int i = 0; i < BUF_LENGTH; i++)
+                    { textbuffer[i] = 0; };
+                   
                    //Print received packet as set of hex values
                    asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
                    Serial.print(F("Received payload: "));
@@ -587,16 +624,36 @@ void loop() {
                
             if ( (recordingmode == 1) && (len < CCBUFFERSIZE ) )
                { 
-                   recordingmode = 0;  // clear recording flag
+                /*   recordingmode = 0;  // clear recording flag
                    // copy the frame from receiving buffer for replay
                    memcpy(ccrecordingbuffer, ccreceivingbuffer, CCBUFFERSIZE );
                    // display info about recorded frame
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
-                   asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
-                   Serial.print(F("Recorded frame with  payload: "));
-                   Serial.print((char *)textbuffer);
-                   Serial.print(F("\r\n"));
+                */
+                
+                // copy the frame from receiving buffer for replay - only if it fits
+                if (( bigrecordingbufferpos + len ) < RECORDINGBUFFERSIZE) 
+                     { // put info about number of bytes
+                      bigrecordingbuffer[bigrecordingbufferpos] = len; 
+                      bigrecordingbufferpos++;
+                      // next - copy current frame and increase 
+                      memcpy(&bigrecordingbuffer[bigrecordingbufferpos], ccreceivingbuffer, len );
+                      // increase position in big recording buffer
+                      bigrecordingbufferpos = bigrecordingbufferpos + len; 
+                      ccreceivingbuffer[len] = '\0';  
+                      // flush textbuffer
+                      for (int i = 0; i < BUF_LENGTH; i++)
+                          { textbuffer[i] = 0; };           
+                      asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
+                      Serial.print(F("Recorded: "));
+                      Serial.print((char *)textbuffer);
+                      Serial.print(F("\r\n"));
+                     }
+                else {
+                    Serial.print(F("recording buffer full!\r\n"));
+                     };
+                
                };   // end of handling frame recording mode 
  
           };   // end of CRC check IF
