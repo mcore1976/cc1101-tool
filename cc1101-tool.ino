@@ -37,9 +37,6 @@ byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
 // buffer for sending  CC1101
 byte ccsendingbuffer[CCBUFFERSIZE] = {0};
 
-// buffer for recording and replaying of single frame
-byte ccrecordingbuffer[CCBUFFERSIZE] = {0};
-
 // buffer for recording and replaying of many frames
 byte bigrecordingbuffer[RECORDINGBUFFERSIZE] = {0};
 
@@ -109,18 +106,6 @@ void  hextoascii(byte *ascii_ptr, byte *hex_ptr,int len)
      };
     ascii_ptr[i++] = '\0' ;
 }
-
-/*
-void  hextoascii(char *ascii_ptr, char *hex_ptr,int len)
-{
-    int final_len = len / 2;
-    int i,j;
-    for (i=0, j=0; j<final_len; i+=2, j++)
-        ascii_ptr[j] = (hex_ptr[i] % 32 + 9) % 25 * 16 + (hex_ptr[i+1] % 32 + 9) % 25;
-    ascii_ptr[final_len] = '\0';
-}
-*/
-
 
 // Initialize CC1101 board with default settings, you may change your preferences here
 static void cc1101initialize(void)
@@ -495,7 +480,7 @@ static void exec(char *cmdline)
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         // rewind recording buffer position to the beginning
         bigrecordingbufferpos = 0;
-        // start reading and sending frames from the buffer
+        // start reading and sending frames from the buffer : FIFO
         for (int i=0; i<setting; i++)  
              { 
                // read length of the recorded frame first from the buffer
@@ -504,7 +489,7 @@ static void exec(char *cmdline)
                memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], bigrecordingbuffer[bigrecordingbufferpos] );             
                // send these data to radio over CC1101
                ELECHOUSE_cc1101.SendData(ccsendingbuffer);
-               // increase position to the buffer
+               // increase position to the buffer and check exception
                bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
                if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
                // 
@@ -624,14 +609,6 @@ void loop() {
                
             if ( (recordingmode == 1) && (len < CCBUFFERSIZE ) )
                { 
-                /*   recordingmode = 0;  // clear recording flag
-                   // copy the frame from receiving buffer for replay
-                   memcpy(ccrecordingbuffer, ccreceivingbuffer, CCBUFFERSIZE );
-                   // display info about recorded frame
-                   // put NULL at the end of char buffer
-                   ccreceivingbuffer[len] = '\0';
-                */
-                
                 // copy the frame from receiving buffer for replay - only if it fits
                 if (( bigrecordingbufferpos + len ) < RECORDINGBUFFERSIZE) 
                      { // put info about number of bytes
@@ -639,7 +616,7 @@ void loop() {
                       bigrecordingbufferpos++;
                       // next - copy current frame and increase 
                       memcpy(&bigrecordingbuffer[bigrecordingbufferpos], ccreceivingbuffer, len );
-                      // increase position in big recording buffer
+                      // increase position in big recording buffer for next frame
                       bigrecordingbufferpos = bigrecordingbufferpos + len; 
                       ccreceivingbuffer[len] = '\0';  
                       // flush textbuffer
