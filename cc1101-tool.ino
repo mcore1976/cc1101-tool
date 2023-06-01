@@ -432,8 +432,6 @@ static void exec(char *cmdline)
         if (jammingmode == 0) { Serial.print(F("Disabled")); }
         else if (jammingmode == 1) 
                { 
-                 // set TX mode
-                 ELECHOUSE_cc1101.SetTx();
                  Serial.print(F("Enabled")); 
                  receivingmode = 0; };
         Serial.print(F("\r\n")); 
@@ -442,7 +440,7 @@ static void exec(char *cmdline)
        } else if (strcmp_P(command, PSTR("tx")) == 0) {
         int setting = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
-        if ((strlen(cmdline)<128) && (strlen(cmdline)>0) )
+        if ((strlen(cmdline)<116) && (strlen(cmdline)>0) )
         { 
                 hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
                 memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
@@ -450,9 +448,6 @@ static void exec(char *cmdline)
                 Serial.print("\r\nTransmitting RF packets.\r\n");
                 // blink LED RX - only for Arduino Pro Micro
                 digitalWrite(RXLED, LOW);   // set the RX LED ON
-                // set TX mode
-                ELECHOUSE_cc1101.SetTx();
- 
                 for (int i=0; i<setting; i++)  
                      {
                       // send these data to radio over CC1101
@@ -499,22 +494,23 @@ static void exec(char *cmdline)
           digitalWrite(RXLED, LOW);   // set the RX LED ON
           // rewind recording buffer position to the beginning
           bigrecordingbufferpos = 0;
-          // set TX mode
-          ELECHOUSE_cc1101.SetTx();
           // start reading and sending frames from the buffer : FIFO
           for (int i=0; i<setting; i++)  
                { 
                  // read length of the recorded frame first from the buffer
                  len = bigrecordingbuffer[bigrecordingbufferpos];
-                 // take next frame from the buffer  for replay
-                 memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], bigrecordingbuffer[bigrecordingbufferpos] );             
-                 // send these data to radio over CC1101
-                 ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)bigrecordingbuffer[bigrecordingbufferpos]);
-                 // increase position to the buffer and check exception
-                 bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
-                 if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
+                 if ((len<59) and (len>0))
+                 { 
+                    // take next frame from the buffer  for replay
+                    memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], bigrecordingbuffer[bigrecordingbufferpos] );      
+                    // send these data to radio over CC1101
+                    ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)bigrecordingbuffer[bigrecordingbufferpos]);
+                    // increase position to the buffer and check exception
+                    bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
+                    if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
+                 };
                  // 
-                };
+               };
           // blink LED RX - only for Arduino Pro Micro
           digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
           Serial.print(F("Done.\r\n"));
@@ -635,7 +631,7 @@ void loop() {
             if ( ((recordingmode == 1) && (receivingmode == 0) )&& (len < CCBUFFERSIZE ) )
                { 
                 // copy the frame from receiving buffer for replay - only if it fits
-                if (( bigrecordingbufferpos + len ) < RECORDINGBUFFERSIZE) 
+                if (( bigrecordingbufferpos + len + 1) < RECORDINGBUFFERSIZE) 
                      { // put info about number of bytes
                       bigrecordingbuffer[bigrecordingbufferpos] = len; 
                       bigrecordingbufferpos++;
@@ -679,12 +675,12 @@ void loop() {
       { 
         // populate cc1101 sending buffer with random values
         randomSeed(analogRead(0));
-        for (i = 0; i<64; i++)
+        for (i = 0; i<58; i++)
            { ccsendingbuffer[i] = (byte)random(255);  };        
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         // send these data to radio over CC1101
-        ELECHOUSE_cc1101.SendData(ccsendingbuffer,60);
+        ELECHOUSE_cc1101.SendData(ccsendingbuffer,58);
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
       };
