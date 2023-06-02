@@ -61,8 +61,10 @@ Following commands are available :
     
     rec <mode>                   // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled
     
-    play <N>                     // Replay N last recorded frames.
-    
+    show                         // Show content of recording buffer
+   
+    play <N>                     // Replay 0 = all frames or N-th recorded frame
+      
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
     
     x                            // Stops activities like jamming/receiving/recording packets
