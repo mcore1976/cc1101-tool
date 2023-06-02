@@ -207,7 +207,8 @@ static void exec(char *cmdline)
         Serial.println(F(
          "jamm <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
          "rec <mode>                // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled\r\n\r\n"
-         "play <N>                  // Replay N last recorded frames.\r\n\r\n"
+         "show                      // Show content of recording buffer.\r\n\r\n"
+         "play <N>                  // Replay 0 = all frames or N-th recorded frame.\r\n\r\n"
          "echo <mode>               // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          "x                         // Stops jamming/receiving/recording packets.\r\n\r\n"
          "init                      // Restarts CC1101 board with default parameters\r\n\r\n"
@@ -440,7 +441,7 @@ static void exec(char *cmdline)
        } else if (strcmp_P(command, PSTR("tx")) == 0) {
         int setting = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
-        if ((strlen(cmdline)<116) && (strlen(cmdline)>0) )
+        if ((strlen(cmdline)<120) && (strlen(cmdline)>0) )
         { 
                 hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
                 memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
@@ -487,37 +488,82 @@ static void exec(char *cmdline)
 
        } else if (strcmp_P(command, PSTR("play")) == 0) {
         setting = atoi(strsep(&cmdline, " ")); 
+        // if number of played frames is 0 it means play all frames
         if (setting <= framesinbigrecordingbuffer)
         {
           Serial.print(F("\r\nReplaying recorded frames.\r\n "));
-          // blink LED RX - only for Arduino Pro Micro
-          digitalWrite(RXLED, LOW);   // set the RX LED ON
           // rewind recording buffer position to the beginning
           bigrecordingbufferpos = 0;
-          // start reading and sending frames from the buffer : FIFO
-          for (int i=0; i<setting; i++)  
+          if (framesinbigrecordingbuffer >0)
+          {
+            // blink LED RX - only for Arduino Pro Micro
+            digitalWrite(RXLED, LOW);   // set the RX LED ON
+
+            // start reading and sending frames from the buffer : FIFO
+            for (int i=1; i<=framesinbigrecordingbuffer ; i++)  
                { 
                  // read length of the recorded frame first from the buffer
                  len = bigrecordingbuffer[bigrecordingbufferpos];
-                 if ((len<59) and (len>0))
+                 if ( ((len<60) and (len>0)) and ((i == setting) or (setting == 0))  )
                  { 
                     // take next frame from the buffer  for replay
-                    memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], bigrecordingbuffer[bigrecordingbufferpos] );      
+                    memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], len );      
                     // send these data to radio over CC1101
-                    ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)bigrecordingbuffer[bigrecordingbufferpos]);
+                    ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)len);
+                 };
+                  // increase position to the buffer and check exception
+                  bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
+                  if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
+                 // 
+               };
+            // blink LED RX - only for Arduino Pro Micro
+            digitalWrite(RXLED, HIGH);   // set the RX LED OFF   
+            
+          }; // end of IF framesinrecordingbuffer  
+        
+          // rewind buffer position
+          bigrecordingbufferpos = 0;
+          Serial.print(F("Done.\r\n"));
+          
+        }
+         else { Serial.print(F("Wrong parameters.\r\n")); };
+
+
+       } else if (strcmp_P(command, PSTR("show")) == 0) {
+         if (framesinbigrecordingbuffer>0)
+        {
+          Serial.print(F("\r\nFrames stored in the recording buffer:\r\n "));
+          // rewind recording buffer position to the beginning
+          bigrecordingbufferpos = 0;
+          // start reading and sending frames from the buffer : FIFO
+          for (int i=0; i<=framesinbigrecordingbuffer; i++)  
+               { 
+                 // read length of the recorded frame first from the buffer
+                 len = bigrecordingbuffer[bigrecordingbufferpos];
+                 if ((len<60) and (len>0))
+                 { 
+                    // take next frame from the buffer  for replay
+                    // flush textbuffer
+                    for (int i = 0; i < BUF_LENGTH; i++)
+                        { textbuffer[i] = 0; };           
+                    asciitohex((byte *)&bigrecordingbuffer[bigrecordingbufferpos + 1], (byte *)textbuffer,  len);
+                    Serial.print(F("\r\nFrame "));
+                    Serial.print(i+1);
+                    Serial.print(F(" : "));                     
+                    Serial.print((char *)textbuffer);
+                    Serial.print(F("\r\n"));
+                 };
                     // increase position to the buffer and check exception
                     bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
                     if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
-                 };
                  // 
                };
-          // blink LED RX - only for Arduino Pro Micro
-          digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
-          Serial.print(F("Done.\r\n"));
           // rewind buffer position
           bigrecordingbufferpos = 0;
+          Serial.print(F("\r\n")); 
         }
          else { Serial.print(F("Wrong parameters.\r\n")); };
+
         
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
@@ -639,14 +685,6 @@ void loop() {
                       memcpy(&bigrecordingbuffer[bigrecordingbufferpos], ccreceivingbuffer, len );
                       // increase position in big recording buffer for next frame
                       bigrecordingbufferpos = bigrecordingbufferpos + len; 
-                      ccreceivingbuffer[len] = '\0';  
-                      // flush textbuffer
-                      for (int i = 0; i < BUF_LENGTH; i++)
-                          { textbuffer[i] = 0; };           
-                      asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
-                      Serial.print(F("Recorded: "));
-                      Serial.print((char *)textbuffer);
-                      Serial.print(F("\r\n"));
                       // increase counter of frames stored
                       framesinbigrecordingbuffer++;
                       // set RX  mode again
@@ -675,12 +713,12 @@ void loop() {
       { 
         // populate cc1101 sending buffer with random values
         randomSeed(analogRead(0));
-        for (i = 0; i<58; i++)
+        for (i = 0; i<60; i++)
            { ccsendingbuffer[i] = (byte)random(255);  };        
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, LOW);   // set the RX LED ON
         // send these data to radio over CC1101
-        ELECHOUSE_cc1101.SendData(ccsendingbuffer,58);
+        ELECHOUSE_cc1101.SendData(ccsendingbuffer,59);
         // blink LED RX - only for Arduino Pro Micro
         digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
       };
