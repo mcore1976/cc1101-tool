@@ -100,3 +100,6 @@ DIGITAL PIN 15 ( PB1 / SCK ) <-> CC1101 SCLK / CLK
 VCC 3.3V  <-> CC1101 VCC
 
 GND <-> CC1101 GND
+
+-----------------------------------------------------
+You can see how this device works here in this video : https://youtu.be/iPVckkTjsd0
