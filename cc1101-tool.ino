@@ -202,12 +202,12 @@ static void exec(char *cmdline)
           "setpqt <mode>            // Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode>   // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
           "rx <mode>                // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
-          "tx <times> <hex-vals>    // Send the same packet of 64 hex values over RF\r\n"
+          "tx <times> <hex-vals>    // Send the same packet of max 60 hex values over RF\r\n"
            ));
         Serial.println(F(
          "jamm <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
          "rec <mode>                // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled\r\n\r\n"
-         "add <hex-vals>            // Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
+         "add <hex-vals>            // Manually add single frame payload (max 60 hex values) to the buffer so it can be replayed\r\n\r\n"
          "show                      // Show content of recording buffer\r\n\r\n"
          "flush                     // Clear the recording buffer\r\n\r\n"
          "play <N>                  // Replay 0 = all frames or N-th recorded frame.\r\n\r\n"
