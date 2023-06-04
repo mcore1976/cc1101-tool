@@ -63,7 +63,7 @@ Following commands are available :
     
     show                         // Show content of recording buffer
     
-    add <hex-vals>               // Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed
+    add <hex-vals>               // Manually add single frame payload (max 60 hex values) to the buffer so it can be replayed
     
     flush                        // Clear the recording buffer
 
