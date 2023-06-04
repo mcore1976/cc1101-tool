@@ -62,7 +62,11 @@ Following commands are available :
     rec <mode>                   // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled
     
     show                         // Show content of recording buffer
-   
+    
+    add <hex-vals>               // Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed
+    
+    flush                        // Clear the recording buffer
+
     play <N>                     // Replay 0 = all frames or N-th recorded frame
       
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
