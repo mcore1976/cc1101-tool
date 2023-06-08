@@ -204,6 +204,7 @@ static void exec(char *cmdline)
           "setpre <mode>            // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode>            // Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode>   // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
+          "getrssi                  // Dispolay quality information about last received frames over RF\r\n\r\n"
           "chat                     // Enable chat mode between many devices\r\n\r\n"
           "rx                       // Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals>            // Send packet of max bytes <hex values> over RF\r\n"
@@ -444,6 +445,16 @@ static void exec(char *cmdline)
         Serial.print(F("\r\nStatus bytes appending: "));
         if (setting == 0) { Serial.print(F("Enabled")); }
         else if (setting == 1) { Serial.print(F("Disabled")); };
+        Serial.print(F("\r\n")); 
+
+    // Handling GETRSSI command         
+      } else if (strcmp_P(command, PSTR("getrssi")) == 0) {
+        //Rssi Level in dBm
+        Serial.print(F("Rssi: "));
+        Serial.println(ELECHOUSE_cc1101.getRssi());
+        //Link Quality Indicator
+        Serial.print(F(" LQI: "));
+        Serial.println(ELECHOUSE_cc1101.getLqi());        
         Serial.print(F("\r\n")); 
 
     // Handling RX command         
