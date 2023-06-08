@@ -694,6 +694,11 @@ static void exec(char *cmdline)
     } else {
         Serial.print(F("Error: Unknown command: "));
         Serial.println(command);
+        //  debug only
+        // asciitohex(command, (byte *)textbuffer,  strlen(command));
+        // Serial.print(F("\r\n"));
+        // Serial.print((char *)textbuffer);
+        // Serial.print(F("\r\n"));
     }
 }
 
@@ -783,7 +788,7 @@ void loop() {
                 if (do_echo) Serial.write("\b \b");
             }
         }
-        else if (data == '\r') {
+        else if (data == '\r' || data == '\n' ) {
             if (do_echo) Serial.write("\r\n");    // output CRLF
             buffer[length] = '\0';
             if (length) exec(buffer);
