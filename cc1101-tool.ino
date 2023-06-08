@@ -23,7 +23,7 @@
 
 #define CCBUFFERSIZE 64
 
-#define RECORDINGBUFFERSIZE 1024
+#define RECORDINGBUFFERSIZE 768
 
 #include <avr/pgmspace.h>
 
