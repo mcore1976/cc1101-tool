@@ -64,6 +64,9 @@ int jammingmode = 0;
 // check if CLI recording mode enabled
 int recordingmode = 0; 
 
+// check if CLI chat mode enabled
+int chatmode = 0; 
+
 
 // convert char table to string with hex numbers
 
@@ -201,6 +204,7 @@ static void exec(char *cmdline)
           "setpre <mode>            // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode>            // Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode>   // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
+          "chat                     // Enable chat mode between many devices\r\n\r\n"
           "rx                       // Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals>            // Send packet of max bytes <hex values> over RF\r\n"
            ));
@@ -458,6 +462,18 @@ static void exec(char *cmdline)
         Serial.print(F("\r\n")); 
  
 
+    // Handling CHAT command         
+       } else if (strcmp_P(command, PSTR("chat")) == 0) {
+        Serial.print(F("\r\nEntering chat mode:\r\n\r\n"));
+        if (chatmode == 0) 
+           { 
+             chatmode = 1;
+             jammingmode = 0;
+             receivingmode = 0;
+             recordingmode = 0;
+           };
+ 
+
     // Handling JAM command         
        } else if (strcmp_P(command, PSTR("jam")) == 0) {
         Serial.print(F("\r\nJamming changed to "));
@@ -705,6 +721,50 @@ void loop() {
         static char buffer[BUF_LENGTH];
         static int length = 0;
 
+    // handling CHAT MODE     
+    if (chatmode == 1) 
+       { 
+            // blink LED RX - only for Arduino Pro Micro
+            digitalWrite(RXLED, LOW);   // set the RX LED ON
+            
+            // clear serial port buffer index
+            i = 0;
+
+            // something was received over serial port put it into radio sending buffer
+            while (Serial.available() and (i<(CCBUFFERSIZE-1)) ) 
+             {
+              // read single character from Serial port         
+              ccsendingbuffer[i] = Serial.read();
+
+              // also put it as ECHO back to serial port
+              Serial.write(ccsendingbuffer[i]);
+               
+              // if CR was received add also LF character and display it on Serial port
+              if (ccsendingbuffer[i] == 0x0d )
+                  {  
+                    Serial.write( 0x0a );
+                    i++;
+                    ccsendingbuffer[i] = 0x0a;
+                  }
+              //
+              
+              // increase CC1101 TX buffer position
+              i++;   
+             };
+
+            // put NULL at the end of CC transmission buffer
+            ccsendingbuffer[i] = '\0';
+
+            // send these data to radio over CC1101
+            ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+
+            // blink LED RX - only for Arduino Pro Micro
+            digitalWrite(RXLED, HIGH);   // set the RX LED OFF
+                
+       }
+    // handling CLI commands processing
+    else
+      {   
         int data = Serial.read();
         if (data == '\b' || data == '\177') {  // BS and DEL
             if (length) {
@@ -722,12 +782,15 @@ void loop() {
             buffer[length++] = data;
             if (do_echo) Serial.write(data);
         }
+       };  
+      // end of handling CLI processing
+        
     };
 
   /* Process RF received packets */
    
    //Checks whether something has been received.
-  if (ELECHOUSE_cc1101.CheckReceiveFlag() && (receivingmode == 1 || recordingmode == 1) )
+  if (ELECHOUSE_cc1101.CheckReceiveFlag() && (receivingmode == 1 || recordingmode == 1 || chatmode == 1) )
       {
        // blink LED RX - only for Arduino Pro Micro
        digitalWrite(RXLED, LOW);   // set the RX LED ON
@@ -738,6 +801,16 @@ void loop() {
             //Get received Data and calculate length
             int len = ELECHOUSE_cc1101.ReceiveData(ccreceivingbuffer);
 
+            // Actions for CHAT MODE
+            if ( ( chatmode == 1) && (len < CCBUFFERSIZE ) )
+               {
+                // put NULL at the end of char buffer
+                ccreceivingbuffer[len] = '\0';
+                //Print received in char format.
+                Serial.print((char *) ccreceivingbuffer);
+               };  // end of handling Chat mode
+
+            // Actions for RECEIVNG MODE
             if ( ((receivingmode == 1) && (recordingmode == 0))&& (len < CCBUFFERSIZE ) )
                {
                    // put NULL at the end of char buffer
@@ -753,7 +826,8 @@ void loop() {
                    // set RX  mode again
                    ELECHOUSE_cc1101.SetRx();
                 };   // end of handling receiving mode 
-               
+
+            // Actions for RECORDING MODE               
             if ( ((recordingmode == 1) && (receivingmode == 0) )&& (len < CCBUFFERSIZE ) )
                { 
                 // copy the frame from receiving buffer for replay - only if it fits
