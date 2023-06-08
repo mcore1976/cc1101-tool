@@ -71,6 +71,8 @@ Following commands are available :
       
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
     
+    chat                         // switching device into chat mode 
+    
     x                            // Stops activities like jamming/receiving/recording packets
     
     init                         // Restarts CC1101 board with default parameters 
