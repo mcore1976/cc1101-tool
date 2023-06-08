@@ -103,5 +103,14 @@ VCC 3.3V  <-> CC1101 VCC
 
 GND <-> CC1101 GND
 
------------------------------------------------------
+--------------------------------------------------------------------------------------
 You can see how this device works here in this video : https://youtu.be/iPVckkTjsd0
+--------------------------------------------------------------------------------------
+
+
+
+Change log :
+08.06.2023 : optimized CLI - removed <mode> for commands RX, TX, JAM. Changed command JAMM to JAM.  Optimized output of RX command - now it will print directly hex values with no description when sniffer enabled. Added CHAT mode, if you have couple of these devices you may use it as and IRC like communicator on selected band/modulation/frequency/channel...
+    
+    
+    
