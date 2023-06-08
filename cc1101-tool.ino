@@ -201,13 +201,13 @@ static void exec(char *cmdline)
           "setpre <mode>            // Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode>            // Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode>   // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
-          "rx <mode>                // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
-          "tx <times> <hex-vals>    // Send the same packet of max 60 hex values over RF\r\n"
+          "rx                       // Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
+          "tx <hex-vals>            // Send packet of max bytes <hex values> over RF\r\n"
            ));
         Serial.println(F(
-         "jamm <mode>               // Enable or disable continous jamming on selected band. 1 = enabled, 0 = disabled\r\n\r\n"
-         "rec <mode>                // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled\r\n\r\n"
-         "add <hex-vals>            // Manually add single frame payload (max 60 hex values) to the buffer so it can be replayed\r\n\r\n"
+         "jamm                      // Enable or disable continous jamming on selected band.\r\n\r\n"
+         "rec                       // Enable or disable recording frames in the buffer.\r\n\r\n"
+         "add <hex-vals>            // Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
          "show                      // Show content of recording buffer\r\n\r\n"
          "flush                     // Clear the recording buffer\r\n\r\n"
          "play <N>                  // Replay 0 = all frames or N-th recorded frame.\r\n\r\n"
@@ -444,33 +444,37 @@ static void exec(char *cmdline)
 
     // Handling RX command         
        } else if (strcmp_P(command, PSTR("rx")) == 0) {
-        receivingmode = atoi(cmdline);
         Serial.print(F("\r\nReceiving and printing RF packet changed to "));
-        if (receivingmode == 0) { Serial.print(F("Disabled")); }
-        else if (receivingmode == 1)
+        if (receivingmode == 1) {
+          receivingmode = 0;
+          Serial.print(F("Disabled")); }
+        else if (receivingmode == 0)
                { ELECHOUSE_cc1101.SetRx();
                  Serial.print(F("Enabled")); 
+                 receivingmode = 1;
                  jammingmode = 0; 
                  recordingmode = 0;
                };
         Serial.print(F("\r\n")); 
  
 
-    // Handling JAMM command         
-       } else if (strcmp_P(command, PSTR("jamm")) == 0) {
-        jammingmode = atoi(cmdline);
+    // Handling JAM command         
+       } else if (strcmp_P(command, PSTR("jam")) == 0) {
         Serial.print(F("\r\nJamming changed to "));
-        if (jammingmode == 0) { Serial.print(F("Disabled")); }
-        else if (jammingmode == 1) 
+        if (jammingmode == 1) 
+           { Serial.print(F("Disabled")); 
+             jammingmode = 0;
+           }
+        else if (jammingmode == 0) 
                { 
                  Serial.print(F("Enabled")); 
+                 jammingmode = 1;
                  receivingmode = 0; };
         Serial.print(F("\r\n")); 
  
 
     // Handling TX command         
        } else if (strcmp_P(command, PSTR("tx")) == 0) {
-        int setting = atoi(strsep(&cmdline, " "));
         // convert hex array to set of bytes
         if ((strlen(cmdline)<=120) && (strlen(cmdline)>0) )
         { 
@@ -480,11 +484,8 @@ static void exec(char *cmdline)
                 Serial.print("\r\nTransmitting RF packets.\r\n");
                 // blink LED RX - only for Arduino Pro Micro
                 digitalWrite(RXLED, LOW);   // set the RX LED ON
-                for (int i=0; i<setting; i++)  
-                     {
-                      // send these data to radio over CC1101
-                      ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)(strlen(cmdline)/2));
-                      };
+                // send these data to radio over CC1101
+                ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)(strlen(cmdline)/2));
                 // blink LED RX - only for Arduino Pro Micro
                 digitalWrite(RXLED, HIGH);   // set the RX LED OFF    
                 // for DEBUG only
@@ -497,16 +498,17 @@ static void exec(char *cmdline)
 
     // Handling REC command         
     } else if (strcmp_P(command, PSTR("rec")) == 0) {
-        recordingmode = atoi(cmdline);
         Serial.print(F("\r\nRecording mode set to "));
-        if (recordingmode == 0) 
+        if (recordingmode == 1) 
             { 
                Serial.print(F("Disabled")); 
                bigrecordingbufferpos = 0; 
+               recordingmode = 0;
             }
-        else if (recordingmode == 1)
+        else if (recordingmode == 0)
             {  ELECHOUSE_cc1101.SetRx(); 
                Serial.print(F("Enabled"));
+               recordingmode = 1;
                bigrecordingbufferpos = 0;
                // flush buffer for recording 
                for (int i = 0; i < RECORDINGBUFFERSIZE; i++)
@@ -722,7 +724,7 @@ void loop() {
         }
     };
 
-    /* Process RF received packets */
+  /* Process RF received packets */
    
    //Checks whether something has been received.
   if (ELECHOUSE_cc1101.CheckReceiveFlag() && (receivingmode == 1 || recordingmode == 1) )
@@ -744,15 +746,13 @@ void loop() {
                    for (int i = 0; i < BUF_LENGTH; i++)
                     { textbuffer[i] = 0; };
                    
-                   //Print received packet as set of hex values
+                   //Print received packet as set of hex values directly 
+                   // not to loose any data in buffer
                    asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
-                   Serial.print(F("Received payload: "));
                    Serial.print((char *)textbuffer);
-                   Serial.print(F("\r\n"));
                    // set RX  mode again
                    ELECHOUSE_cc1101.SetRx();
-                   // Serial.print((char *) ccreceivingbuffer);
-               };   // end of handling receiving mode 
+                };   // end of handling receiving mode 
                
             if ( ((recordingmode == 1) && (receivingmode == 0) )&& (len < CCBUFFERSIZE ) )
                { 
