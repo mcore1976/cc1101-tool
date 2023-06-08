@@ -53,13 +53,13 @@ Following commands are available :
 
     setappendstatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.
 
-    rx <mode>                    // Enable or disable printing of received RF packets on serial terminal. 1 = enabled, 0 = disabled
+    rx                           // Enable or disable printing of received RF packets on serial terminal.
 
-    tx <times> <hex-vals>        // Send the same packet of 64 hex values over RF 
+    tx  <hex-vals>               // Send the packet of max 60 bytes < hex values > hex values over RF 
 
-    jamm <mode>                  // Enable or disable continous jamming on selected band with selected modulation etc... 1 = enabled, 0 = disabled
+    jam                          // Enable or disable continous jamming on selected band with selected modulation etc... 
     
-    rec <mode>                   // Enable or disable recording frames in the buffer. 1 = enabled, 0 = disabled
+    rec                         // Enable or disable recording frames in the buffer.
     
     show                         // Show content of recording buffer
     
