@@ -71,6 +71,8 @@ Following commands are available :
 
     play <N>                     // Replay 0 = all frames or N-th recorded frame
 
+    rxraw <microseconds>         // Sniffs radio by sampling with <microsecond> interval and prints received bytes in hex
+
     recraw <microseconds>        // Recording RAW RF data with <microsecond> sampling interval
     
     showraw                      // Showing content of recording buffer in RAW format
