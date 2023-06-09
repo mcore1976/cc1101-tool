@@ -205,7 +205,7 @@ static void exec(char *cmdline)
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
-          "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n"
+          "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
