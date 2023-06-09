@@ -23,7 +23,7 @@
 
 #define CCBUFFERSIZE 64
 
-#define RECORDINGBUFFERSIZE 768
+#define RECORDINGBUFFERSIZE 1024
 
 #include <avr/pgmspace.h>
 
@@ -67,6 +67,11 @@ int recordingmode = 0;
 // check if CLI chat mode enabled
 int chatmode = 0; 
 
+// pin number for GDO0 connectivity for RAW recording / transmission
+int gdo0pin = 3;
+
+// pin number for GDO2 connectivity for RAW recording / transmission
+int gdo2pin = 9;
 
 // convert char table to string with hex numbers
 
@@ -125,13 +130,15 @@ static void cc1101initialize(void)
      byte mosi = 16;
      byte ss = 10;
      int gdo0 = 3;
+     int gdo2 = 9;
      // initializing library with custom pins selected
      ELECHOUSE_cc1101.setSpiPin(sck, miso, mosi, ss);
+     ELECHOUSE_cc1101.setGDO(gdo0, gdo2);
 
     // Main part to tune CC1101 with proper frequency, modulation and encoding    
     ELECHOUSE_cc1101.Init();                // must be set to initialize the cc1101!
     ELECHOUSE_cc1101.setGDO0(gdo0);         // set lib internal gdo pin (gdo0). Gdo2 not use for this example.
-    ELECHOUSE_cc1101.setCCMode(1);          // set config for internal transmission mode.
+    ELECHOUSE_cc1101.setCCMode(1);          // set config for internal transmission mode. value 0 is for RAW recording/replaying
     ELECHOUSE_cc1101.setModulation(2);      // set modulation mode. 0 = 2-FSK, 1 = GFSK, 2 = ASK/OOK, 3 = 4-FSK, 4 = MSK.
     ELECHOUSE_cc1101.setMHZ(433.92);        // Here you can set your basic frequency. The lib calculates the frequency automatically (default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ. Read More info from datasheet.
     ELECHOUSE_cc1101.setDeviation(47.60);   // Set the Frequency deviation in kHz. Value from 1.58 to 380.85. Default is 47.60 kHz.
@@ -180,42 +187,45 @@ static void exec(char *cmdline)
           "setchannel <channel> : Set the Channelnumber from 0 to 255. Default is cahnnel 0.\r\n\r\n"
           "setchsp <spacing>  :  The channel spacing is multiplied by the channel number CHAN and added to the base frequency in kHz. Value from 25.39 to 405.45. Default is 199.95 kHz. \r\n\r\n"
           "setrxbw <Receive bndwth> : Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.\r\n"
-         ));
-        Serial.println(F(
           "setdrate <datarate> : Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!\r\n\r\n"
           "setpa <power value> : Set RF transmission power. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!\r\n\r\n"
+         ));
+        Serial.println(F(
           "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
           "setsyncword <decimal LOW, decimal HIGH> : Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low) Default is 211,145\r\n\r\n"
           "setadrchk <address chk> : Controls address check configuration of received packages. 0 = No address check. 1 = Address check, no broadcast. 2 = Address check and 0 (0x00) broadcast. 3 = Address check and 0 (0x00) and 255 (0xFF) broadcast.\r\n\r\n"
           "setaddr <address> : Address used for packet filtration. Optional broadcast addresses are 0 (0x00) and 255 (0xFF).\r\n\r\n"
-         ));
-        Serial.println(F(
           "setwhitedata <whitening> : Turn data whitening on / off. 0 = Whitening off. 1 = Whitening on.\r\n\r\n"
           "setpktformat <pktformat> : Format of RX and TX data. 0 = Normal mode, use FIFOs for RX and TX. 1 = Synchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins. 2 = Random TX mode; sends random data using PN9 generator.  3 = Asynchronous serial mode\r\n\r\n"
           "setlengthconfig <mode> : Set packet Length mode : 0 = Fixed packet length mode. 1 = Variable packet length mode. 2 = Infinite packet length mode. 3 = Reserved \r\n\r\n"
           "setpacketlength <mode> : Indicates the packet length when fixed packet length mode is enabled. If variable packet length mode is used, this value indicates the maximum packet length allowed.\r\n\r\n"
+         ));
+        Serial.println(F(
           "setcrc <mode> : Switches on/of CRC calculation and check. 1 = CRC calculation in TX and CRC check in RX enabled. 0 = CRC disabled for TX and RX.\r\n\r\n"
           "setcrcaf <mode> : Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n\r\n"
           "setdcfilteroff <mode> : Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).\r\n\r\n"
-         ));
-        Serial.println(F(
           "setmanchester <mode> : Enables Manchester encoding/decoding. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setfec <mode> : Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setpre <mode> : Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode> : Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode> : When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
+         ));
+        Serial.println(F(
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n"
-           ));
-        Serial.println(F(
          "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
          "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
          "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
          "show : Show content of recording buffer\r\n\r\n"
+           ));
+        Serial.println(F(
          "flush : Clear the recording buffer\r\n\r\n"
          "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
+         "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+         "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
+         "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
          "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
          "x : Stops jamming/receiving/recording packets.\r\n\r\n"
          "init : Restarts CC1101 board with default parameters\r\n\r\n"
@@ -521,6 +531,88 @@ static void exec(char *cmdline)
                 Serial.print((char *)textbuffer);
                 Serial.print(F("\r\n")); }
          else { Serial.print(F("Wrong parameters.\r\n")); };
+
+
+
+    // handling RECRAW command
+    } else if (strcmp_P(command, PSTR("recraw")) == 0) {
+        // take interval period for samplink
+        setting = atoi(cmdline);
+        if (setting>0)
+        {
+        // setup async mode on CC1101 with GDO0 pin processing
+        ELECHOUSE_cc1101.setCCMode(0); 
+        ELECHOUSE_cc1101.setPktFormat(3);
+        ELECHOUSE_cc1101.SetRx();
+        //start recording to the buffer with bitbanging of GDO0 pin state
+        Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
+        pinMode(gdo0pin, INPUT);
+
+        for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
+           { 
+             byte receivedbyte = 0;
+             for(int j=0; j<8; j++)  // 8 bits in a byte
+               {
+                 bitWrite(receivedbyte, j, digitalRead(gdo0pin)); // Capture GDO0 state into the byte
+                 delayMicroseconds(setting);                      // delay for selected sampling interval
+               }; 
+                 // store the output into recording buffer
+             bigrecordingbuffer[i] = receivedbyte;
+           }
+        Serial.print(F("\r\nRecording RAW data complete.\r\n\r\n"));
+        // setting normal pkt format again
+        ELECHOUSE_cc1101.setCCMode(1); 
+        ELECHOUSE_cc1101.setPktFormat(0);
+        ELECHOUSE_cc1101.SetRx();
+        }
+        else { Serial.print(F("Wrong parameters.\r\n")); };
+
+
+
+    // handling PLAYRAW command
+    } else if (strcmp_P(command, PSTR("playraw")) == 0) {
+        // take interval period for sampling
+        setting = atoi(cmdline);
+        if (setting>0)
+        {
+        // setup async mode on CC1101 and go into TX mode
+        // with GDO0 pin processing
+        ELECHOUSE_cc1101.setCCMode(0); 
+        ELECHOUSE_cc1101.setPktFormat(3);
+        ELECHOUSE_cc1101.SetTx();
+        //start replaying GDO0 bit state from data in the buffer with bitbanging 
+        Serial.print(F("\r\nReplaying RAW data from the buffer...\r\n"));
+        pinMode(gdo0pin, OUTPUT);
+
+        for (int i=1; i<RECORDINGBUFFERSIZE ; i++)  
+           { 
+             byte receivedbyte = bigrecordingbuffer[i];
+             for(int j=0; j<8; j++)  // 8 bits in a byte
+               {
+                 digitalWrite(gdo0pin, bitRead(receivedbyte, j)); // Set GDO0 according to recorded byte
+                 delayMicroseconds(setting);                      // delay for selected sampling interval
+               }; 
+           }
+        Serial.print(F("\r\nReplaying RAW data complete.\r\n\r\n"));
+        // setting normal pkt format again
+        ELECHOUSE_cc1101.setCCMode(1); 
+        ELECHOUSE_cc1101.setPktFormat(0);
+        ELECHOUSE_cc1101.SetTx();
+        // pinMode(gdo0pin, INPUT);
+        }
+        else { Serial.print(F("Wrong parameters.\r\n")); };
+
+    // handling SHOWRAW command
+    } else if (strcmp_P(command, PSTR("showraw")) == 0) {
+    // show the content of recorded RAW signal as hex numbers
+       Serial.print(F("\r\nRecorded RAW data:\r\n"));
+       for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
+           { 
+                    asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                    Serial.print((char *)textbuffer);
+           }
+       Serial.print(F("\r\n\r\n"));
+
 
 
     // Handling REC command         
