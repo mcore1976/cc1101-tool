@@ -1,5 +1,5 @@
 # cc1101-tool
-RF tool based on CC1101 module and Arduino Pro Micro 8VMHz/3.3V. Allows using CLI to control CC1101 board over USB interface. Putty or any other serial terminal can be used. It has similar functionality to YardStick One but is cheaper and does not need specialized software. Allows for RF jamming and replay attacks as well. Additional function is Radio Chat communicator
+RF tool based on CC1101 module and Arduino Pro Micro 8VMHz/3.3V. Allows using CLI to control CC1101 board over USB interface. Putty or any other serial terminal can be used. It has similar functionality to YardStick One but is cheaper and does not need specialized software. Allows for RF jamming and replay attacks as well. It has RAW  recording/replaying function which works exactly the same as in the Flipper Zero. Additional function is Radio Chat communicator
 
 You simply connect your Arduino Pro Micro (Arduino Leonardo clone from Sparkfun) to USB port of your PC and launch Putty terminal to communicate with CC1101 module over USB Serial port ( /dev/ttyACM0 port in Linux, COMxx in Windows). Also you may connect this device to Android OTG USB port in your smartphone and use USB Serial Terminal application ( set option CDC driver).
 
@@ -70,7 +70,13 @@ Following commands are available :
     flush                        // Clear the recording buffer
 
     play <N>                     // Replay 0 = all frames or N-th recorded frame
-      
+
+    recraw <microseconds>        // Recording RAW RF data with <microsecond> sampling interval
+    
+    showraw                      // Showing content of recording buffer in RAW format
+    
+    playraw <microseconds>       // Replaying previously recorded RAW RF data with <microsecond> sampling interval
+
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
     
     chat                         // switching device into chat mode 
