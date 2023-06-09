@@ -16,44 +16,27 @@
 // This code will ONLY work with Arduino Pro Micro 3.3V 8MHz
 //
 
-
-
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
-
-
-#define CCBUFFERSIZE 64
-
-#define RECORDINGBUFFERSIZE 1024
-
 #include <avr/pgmspace.h>
 
-#define BUF_LENGTH 256  /* Buffer for the incoming command. */
+#define CCBUFFERSIZE 64
+#define RECORDINGBUFFERSIZE 1024
+#define BUF_LENGTH 128  /* Buffer for the incoming command. */
 
-static bool do_echo = true;
+// pin number for CC1101 GDO0 connectivity for RAW recording / transmission
+int gdo0pin = 3;
 
-// buffer for receiving  CC1101
-byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
+// pin number for CC1101 GDO2 connectivity for RAW recording / transmission
+int gdo2pin = 9;
 
-// buffer for sending  CC1101
-byte ccsendingbuffer[CCBUFFERSIZE] = {0};
-
-// buffer for recording and replaying of many frames
-byte bigrecordingbuffer[RECORDINGBUFFERSIZE] = {0};
+// The RX LED has a defined Arduino Pro Micro pin
+int RXLED = 17; 
 
 // position in big recording buffer
 int bigrecordingbufferpos = 0; 
 
 // number of frames in big recording buffer
 int framesinbigrecordingbuffer = 0; 
-
-
-// buffer for hex to ascii conversions 
-byte textbuffer[BUF_LENGTH];
-
-
-
-// The RX LED has a defined Arduino Pro Micro pin
-int RXLED = 17; 
 
 // check if CLI receiving mode enabled
 int receivingmode = 0; 
@@ -67,14 +50,23 @@ int recordingmode = 0;
 // check if CLI chat mode enabled
 int chatmode = 0; 
 
-// pin number for GDO0 connectivity for RAW recording / transmission
-int gdo0pin = 3;
+static bool do_echo = true;
 
-// pin number for GDO2 connectivity for RAW recording / transmission
-int gdo2pin = 9;
+// buffer for receiving  CC1101
+byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
+
+// buffer for sending  CC1101
+byte ccsendingbuffer[CCBUFFERSIZE] = {0};
+
+// buffer for recording and replaying of many frames
+byte bigrecordingbuffer[RECORDINGBUFFERSIZE] = {0};
+
+// buffer for hex to ascii conversions 
+byte textbuffer[BUF_LENGTH];
+
+
 
 // convert char table to string with hex numbers
-
 void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
 {
     byte i,j,k;
@@ -100,7 +92,6 @@ void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
 
 
 // convert string with hex numbers to array of bytes
-
 void  hextoascii(byte *ascii_ptr, byte *hex_ptr,int len)
 {
     byte i,j;
@@ -168,12 +159,12 @@ static void cc1101initialize(void)
 
 // Execute a complete CC1101 command.
 
-
 static void exec(char *cmdline)
 { 
         
     char *command = strsep(&cmdline, " ");
     int setting, setting2, len;
+    byte j, k;
     float settingf1;
     float settingf2;
     
@@ -215,20 +206,21 @@ static void exec(char *cmdline)
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n"
-         "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
-         "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
-         "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
-         "show : Show content of recording buffer\r\n\r\n"
+          "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
+          "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
+          "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
+          "show : Show content of recording buffer\r\n\r\n"
            ));
         Serial.println(F(
-         "flush : Clear the recording buffer\r\n\r\n"
-         "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
-         "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
-         "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
-         "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
-         "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
-         "x : Stops jamming/receiving/recording packets.\r\n\r\n"
-         "init : Restarts CC1101 board with default parameters\r\n\r\n"
+          "flush : Clear the recording buffer\r\n\r\n"
+          "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
+          "rxraw <microseconds> : Sniffs radio by sampling with <microsecond> interval and prints received bytes in hex.\r\n\r\n"
+          "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
+          "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
+          "x : Stops jamming/receiving/recording packets.\r\n\r\n"
+          "init : Restarts CC1101 board with default parameters\r\n\r\n"
          ));
 
     // Handling SETMODULATION command 
@@ -567,6 +559,50 @@ static void exec(char *cmdline)
         }
         else { Serial.print(F("Wrong parameters.\r\n")); };
 
+   // handling RXRAW command - sniffer
+    } else if (strcmp_P(command, PSTR("rxraw")) == 0) {
+        // take interval period for samplink
+        setting = atoi(cmdline);
+        if (setting>0)
+        {
+        // setup async mode on CC1101 with GDO0 pin processing
+        ELECHOUSE_cc1101.setCCMode(0); 
+        ELECHOUSE_cc1101.setPktFormat(3);
+        ELECHOUSE_cc1101.SetRx();
+        //start recording to the buffer with bitbanging of GDO0 pin state
+        Serial.print(F("\r\nSniffer enabled...\r\n"));
+        pinMode(gdo0pin, INPUT);
+        
+       // Any received char over Serial port stops printing  RF received bytes
+        while (!Serial.available()) 
+           {  // we have to use the buffer not to introduce delays
+             for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
+                { 
+                  byte receivedbyte = 0;
+                  for(int j=0; j<8; j++)  // 8 bits in a byte
+                    {
+                       bitWrite(receivedbyte, j, digitalRead(gdo0pin)); // Capture GDO0 state into the byte
+                       delayMicroseconds(setting);                      // delay for selected sampling interval
+                    }; 
+                    // store the output into recording buffer
+                    bigrecordingbuffer[i] = receivedbyte;
+                }; 
+             // when buffer full print the ouptput to serial port
+             for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
+                    { 
+                       asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                       Serial.print((char *)textbuffer);
+                    };
+           }; // end of While loop
+           
+        Serial.print(F("\r\nStopping the sniffer.\n\r\n"));
+        
+        // setting normal pkt format again
+        ELECHOUSE_cc1101.setCCMode(1); 
+        ELECHOUSE_cc1101.setPktFormat(0);
+        ELECHOUSE_cc1101.SetRx();
+        }
+        else { Serial.print(F("Wrong parameters.\r\n")); };
 
 
     // handling PLAYRAW command
@@ -627,11 +663,11 @@ static void exec(char *cmdline)
         else if (recordingmode == 0)
             {  ELECHOUSE_cc1101.SetRx(); 
                Serial.print(F("Enabled"));
-               recordingmode = 1;
                bigrecordingbufferpos = 0;
                // flush buffer for recording 
                for (int i = 0; i < RECORDINGBUFFERSIZE; i++)
                     { bigrecordingbuffer[RECORDINGBUFFERSIZE] = 0; };
+               recordingmode = 1;
                jammingmode = 0;
                receivingmode = 0;
                // start counting frames in the buffer
