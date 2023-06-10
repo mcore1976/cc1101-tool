@@ -20,14 +20,19 @@
 #include <avr/pgmspace.h>
 
 #define CCBUFFERSIZE 64
-#define RECORDINGBUFFERSIZE 1024
+#define RECORDINGBUFFERSIZE 1536
 #define BUF_LENGTH 128  /* Buffer for the incoming command. */
 
-// pin number for CC1101 GDO0 connectivity for RAW recording / transmission
-int gdo0pin = 3;
-
-// pin number for CC1101 GDO2 connectivity for RAW recording / transmission
-int gdo2pin = 9;
+// Following section enables SmartRC CC1101 library 
+// to work with Arduino Pro Micro
+// if using different board, please change it to your board assignments
+// defining PINs set for Arduino Pro Micro setup
+byte sck = 15;   
+byte miso = 14;
+byte mosi = 16;
+byte ss = 10;
+int gdo0 = 3;
+int gdo2 = 9;
 
 // The RX LED has a defined Arduino Pro Micro pin
 int RXLED = 17; 
@@ -112,17 +117,7 @@ void  hextoascii(byte *ascii_ptr, byte *hex_ptr,int len)
 // Initialize CC1101 board with default settings, you may change your preferences here
 static void cc1101initialize(void)
 {
-     // Following section enables SmartRC CC1101 library 
-     // to work with Arduino Pro Micro
-     // if using different board, please remove it
-     // defining PINs set for Arduino Pro Micro setup
-     byte sck = 15;   
-     byte miso = 14;
-     byte mosi = 16;
-     byte ss = 10;
-     int gdo0 = 3;
-     int gdo2 = 9;
-     // initializing library with custom pins selected
+    // initializing library with custom pins selected
      ELECHOUSE_cc1101.setSpiPin(sck, miso, mosi, ss);
      ELECHOUSE_cc1101.setGDO(gdo0, gdo2);
 
@@ -205,7 +200,7 @@ static void exec(char *cmdline)
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
-          "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n\r\n"
+          "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
@@ -538,15 +533,15 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.SetRx();
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
-        pinMode(gdo0pin, INPUT);
+        pinMode(gdo0, INPUT);
 
         for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = 0;
              for(int j=0; j<8; j++)  // 8 bits in a byte
                {
-                 bitWrite(receivedbyte, j, digitalRead(gdo0pin)); // Capture GDO0 state into the byte
-                 delayMicroseconds(setting);                      // delay for selected sampling interval
+                 bitWrite(receivedbyte, j, digitalRead(gdo0)); // Capture GDO0 state into the byte
+                 delayMicroseconds(setting);                   // delay for selected sampling interval
                }; 
                  // store the output into recording buffer
              bigrecordingbuffer[i] = receivedbyte;
@@ -571,18 +566,24 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.SetRx();
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nSniffer enabled...\r\n"));
-        pinMode(gdo0pin, INPUT);
+        pinMode(gdo0, INPUT);
+
+        
         
        // Any received char over Serial port stops printing  RF received bytes
         while (!Serial.available()) 
-           {  // we have to use the buffer not to introduce delays
+           {  
+             // blink LED RX - only for Arduino Pro Micro
+             digitalWrite(RXLED, LOW);   // set the RX LED ON
+  
+             // we have to use the buffer not to introduce delays
              for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
                 { 
                   byte receivedbyte = 0;
                   for(int j=0; j<8; j++)  // 8 bits in a byte
                     {
-                       bitWrite(receivedbyte, j, digitalRead(gdo0pin)); // Capture GDO0 state into the byte
-                       delayMicroseconds(setting);                      // delay for selected sampling interval
+                       bitWrite(receivedbyte, j, digitalRead(gdo0));  // Capture GDO0 state into the byte
+                       delayMicroseconds(setting);                    // delay for selected sampling interval
                     }; 
                     // store the output into recording buffer
                     bigrecordingbuffer[i] = receivedbyte;
@@ -593,6 +594,10 @@ static void exec(char *cmdline)
                        asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
                        Serial.print((char *)textbuffer);
                     };
+                    
+            // blink LED RX - only for Arduino Pro Micro
+            digitalWrite(RXLED, HIGH);   // set the RX LED OFF
+  
            }; // end of While loop
            
         Serial.print(F("\r\nStopping the sniffer.\n\r\n"));
@@ -618,17 +623,24 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.SetTx();
         //start replaying GDO0 bit state from data in the buffer with bitbanging 
         Serial.print(F("\r\nReplaying RAW data from the buffer...\r\n"));
-        pinMode(gdo0pin, OUTPUT);
+        pinMode(gdo0, OUTPUT);
 
+        // blink LED RX - only for Arduino Pro Micro
+        digitalWrite(RXLED, LOW);   // set the RX LED ON
+        
         for (int i=1; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = bigrecordingbuffer[i];
              for(int j=0; j<8; j++)  // 8 bits in a byte
                {
-                 digitalWrite(gdo0pin, bitRead(receivedbyte, j)); // Set GDO0 according to recorded byte
+                 digitalWrite(gdo0, bitRead(receivedbyte, j)); // Set GDO0 according to recorded byte
                  delayMicroseconds(setting);                      // delay for selected sampling interval
                }; 
            }
+
+        // blink LED RX - only for Arduino Pro Micro
+        digitalWrite(RXLED, HIGH);   // set the RX LED OFF
+        
         Serial.print(F("\r\nReplaying RAW data complete.\r\n\r\n"));
         // setting normal pkt format again
         ELECHOUSE_cc1101.setCCMode(1); 
