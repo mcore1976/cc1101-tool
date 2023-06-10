@@ -158,17 +158,17 @@ Example for Arduino Nano board :
 
 // defining PINs for Arduino NANO
 
-byte sck = 16;
+byte sck = 16;  // D13 
 
-byte miso = 15;
+byte miso = 15;  // D12
 
-byte mosi = 14;
+byte mosi = 14;  // D11
 
-byte ss = 13;
+byte ss = 13;  // D10
+ 
+int gdo0 = 9;  // D6
 
-int gdo0 = 9;
-
-int gdo2 = 5;
+int gdo2 = 5;  // D2
 
 
 
