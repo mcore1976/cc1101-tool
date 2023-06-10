@@ -124,7 +124,7 @@ Change log :
 08.06.2023 : optimized CLI - removed unnecessary parameters for commands RX, TX, JAM. Changed command JAMM to JAM.  Optimized output of RX command - now will print directly hex values with no description when sniffer enabled.  Corrected reaction for CR/LF when using with "Serial Terminal" application on USB OTG port on Android phones
 Added CHAT mode, if you have couple of these devices you may use it as and IRC like communicator on selected band/modulation/frequency/channel...
 
-09.06.2023 : added RAW mode as in Flipper Zero : new commads available - rxraw "interval microseconds", recraw "interval usec", playraw "interval usec", showraw - for record & replay attacking. Buffer of 1024 bytes is used to store recording. After quitting RAW mode please enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation.. Enjoy :-)    
+09.06.2023 : added RAW mode as in Flipper Zero : new commads available - rxraw "interval microseconds", recraw "interval usec", playraw "interval usec", showraw - for record & replay attacking. Buffer of 1536 bytes is used to store recording. After playing with RAW mode please  always enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation it will work JUST FINE.. Enjoy :-)    
 
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
