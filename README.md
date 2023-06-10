@@ -156,6 +156,19 @@ int gdo2 = 4;     // GPIO 4
 
 Example for Arduino Nano board : 
 
+// defining PINs for Arduino NANO
+
+byte sck = 16;
+
+byte miso = 15;
+
+byte mosi = 14;
+
+byte ss = 13;
+
+int gdo0 = 9;
+
+int gdo2 = 5;
 
 
 
