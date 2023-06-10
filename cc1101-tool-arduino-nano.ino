@@ -13,7 +13,9 @@
 // Also uses Arduino Command Line interpreter by Edgar Bonet
 // from https://gist.github.com/edgar-bonet/607b387260388be77e96
 //
-// This code will ONLY work with Arduino Nano board
+// This code will ONLY work with ARDUINO NANO
+// ATTENTION!  ARDUINO NANO REQUIRES TTL LOGIC CONVERTER 3.3V<->5V
+// TO INTERWORK WITH CC1101 MODULES !!!
 //
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
