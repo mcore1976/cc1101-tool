@@ -19,9 +19,14 @@
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 #include <avr/pgmspace.h>
 
+// buffer for communication with CC1101 board
 #define CCBUFFERSIZE 64
-#define RECORDINGBUFFERSIZE 1536
-#define BUF_LENGTH 128  /* Buffer for the incoming command. */
+
+// ATMEGA 328 has only 2048 bytes of SRAM so the buffer will be smaller
+#define RECORDINGBUFFERSIZE 1024
+
+// buffer for incomming text CLI commands & hex values processing
+#define BUF_LENGTH 128  
 
 // defining PINs for Arduino NANO
 byte sck = 16;
