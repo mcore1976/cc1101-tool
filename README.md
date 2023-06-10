@@ -114,7 +114,7 @@ VCC 3.3V  <-> CC1101 VCC
 GND <-> CC1101 GND
 
 
-
+----
 
 If you want to use different Arduino Board, please change pin assignment in the beginning of the source code here
 
