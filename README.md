@@ -134,16 +134,25 @@ int gdo0 = 3;
 
 int gdo2 = 9;
 
+----
 
 Example for ESP32 board :
 
 // defining PINs set for ESP32 module
+
 byte sck = 18;     //  GPIO 18
+
 byte miso = 19;  //  GPIO 19
+
 byte mosi = 23;  // GPIO
+
 byte ss = 5;        // GPIO 5
+
 int gdo0 = 2;     // GPIO 2
+
 int gdo2 = 4;     // GPIO 4
+
+----
 
 Example for Arduino Nano board : 
 
