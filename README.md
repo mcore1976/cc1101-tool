@@ -114,7 +114,10 @@ VCC 3.3V  <-> CC1101 VCC
 GND <-> CC1101 GND
 
 
+
+
 If you want to use different Arduino Board, please change pin assignment in the beginning of the source code here
+
 
 // if using different board, please change it to your board assignments
 // defining PINs set for Arduino Pro Micro setup
