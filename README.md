@@ -134,6 +134,11 @@ int gdo0 = 3;
 
 int gdo2 = 9;
 
+and TUNE this buffer size to fit to SRAM memory on you Arduino board
+
+#define RECORDINGBUFFERSIZE 1536
+
+
 ----
 
 Example for ESP32 board :
