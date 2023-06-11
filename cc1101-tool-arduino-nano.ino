@@ -13,9 +13,7 @@
 // Also uses Arduino Command Line interpreter by Edgar Bonet
 // from https://gist.github.com/edgar-bonet/607b387260388be77e96
 //
-// This code will ONLY work with ARDUINO NANO
-// ATTENTION!  ARDUINO NANO REQUIRES TTL LOGIC CONVERTER 3.3V<->5V
-// TO INTERWORK WITH CC1101 MODULES !!!
+// This code will ONLY work with Arduino Nano board
 //
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
@@ -35,8 +33,8 @@ byte sck = 16; // D13
 byte miso = 15; // D12
 byte mosi = 14; // D11
 byte ss = 13; // D10
-int gdo0 = 9; // D6
-int gdo2 = 5; // D2
+byte gdo0 = 9; // D6
+byte gdo2 = 5; // D2
 
 // position in big recording buffer
 int bigrecordingbufferpos = 0; 
@@ -528,10 +526,16 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.setCCMode(0); 
         ELECHOUSE_cc1101.setPktFormat(3);
         ELECHOUSE_cc1101.SetRx();
+        
         //start recording to the buffer with bitbanging of GDO0 pin state
-        Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
+        Serial.print(F("\r\nWaiting for radio signal to start RAW recording...\r\n"));
         pinMode(gdo0, INPUT);
 
+        // waiting for some data first or serial port signal
+        // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
+        while ( digitalRead(gdo0) == LOW ); 
+
+        // start capturing
         for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = 0;
