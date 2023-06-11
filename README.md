@@ -189,29 +189,21 @@ Change log :
 
 
 
-08.06.2023 : optimized CLI - removed unnecessary parameters for commands RX, TX, JAM. 
-
-Changed command JAMM to JAM.  
-
-Optimized output of RX command - now will print directly hex values with no description when sniffer enabled.  
-
-Corrected reaction for CR/LF when using with "Serial Terminal" application on USB OTG port on Android phones
-
-Added CHAT mode, if you have couple of these devices you may use it as and IRC like communicator on selected band/modulation/frequency/channel...
+08.06.2023 : optimized CLI 
+- removed unnecessary parameters for commands RX, TX, JAM. 
+- changed command JAMM to JAM.  
+- optimized output of RX command - now will print directly hex values with no description when sniffer enabled.  
+- corrected reaction for CR/LF when using with "Serial Terminal" application on USB OTG port on Android phones
+- Added CHAT mode, if you have couple of these devices you may use it as and IRC like communicator on selected band/modulation/frequency/channel...
 
 
-
-09.06.2023 : added RAW mode as in Flipper Zero : new commads available
-
-rxraw "interval microseconds", 
-
-recraw "interval usec", 
-
-playraw "interval usec", 
-
-showraw - for record & replay attacking. 
-
-Buffer of 1536 bytes is used to store recording. After playing with RAW mode please  always enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation it will work JUST FINE.. Enjoy :-)    
+09.06.2023 : added RAW mode as in Flipper Zero 
+- rxraw "interval microseconds", 
+- recraw "interval usec", 
+- playraw "interval usec", 
+- showraw - for record & replay attacking. 
+- buffer of 1536 bytes is used to store recording. 
+- after playing with RAW mode please  always enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation it will work JUST FINE.. Enjoy :-)    
 
 
 
