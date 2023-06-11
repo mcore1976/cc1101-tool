@@ -190,7 +190,7 @@ Added CHAT mode, if you have couple of these devices you may use it as and IRC l
 
 09.06.2023 : added RAW mode as in Flipper Zero : new commads available - rxraw "interval microseconds", recraw "interval usec", playraw "interval usec", showraw - for record & replay attacking. Buffer of 1536 bytes is used to store recording. After playing with RAW mode please  always enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation it will work JUST FINE.. Enjoy :-)    
 
-10.06.2023 : added Arduino Nano version which requires TTL logic converter for 3.3V. Added ESP32 version. Changed RECRAW command to start recording RAW signal once something appears over the radio.
+10.06.2023 : added Arduino Mega/Nano/Uno version which requires TTL logic converter for 3.3V - TXS0108E. Added ESP32 version. Changed RECRAW command to start recording RAW signal once something appears over the radio.
 
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
