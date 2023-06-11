@@ -1,7 +1,7 @@
 # cc1101-tool
 RF tool based on CC1101 module and Arduino Pro Micro 8VMHz/3.3V. Allows using CLI to control CC1101 board over USB interface. Putty or any other serial terminal can be used. It has similar functionality to YardStick One but is cheaper and does not need specialized software. Allows for RF jamming and replay attacks as well. It has RAW  recording/replaying function which works exactly the same as in the Flipper Zero. Additional function is Radio Chat communicator
 
-You simply connect your Arduino Pro Micro (Arduino Leonardo clone from Sparkfun) to USB port of your PC and launch Putty terminal to communicate with CC1101 module over USB Serial port ( /dev/ttyACM0 port in Linux, COMxx in Windows). Also you may connect this device to Android OTG USB port in your smartphone and use USB Serial Terminal application ( set option CDC driver).
+You simply connect your Arduino Pro Micro (Arduino Leonardo clone from Sparkfun) to USB port of your PC and launch Putty terminal to communicate with CC1101 module over USB Serial port ( /dev/ttyACM0 port in Linux, COMxx in Windows). Also you may connect this device to Android OTG USB port in your smartphone and use USB Serial Terminal application when option CDC driver is set ( app : https://play.google.com/store/apps/details?id=de.kai_morich.serial_usb_terminal&hl=pl&gl=US&pli=1 ).
 
 Following commands are available :
 
