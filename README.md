@@ -215,9 +215,9 @@ Buffer of 1536 bytes is used to store recording. After playing with RAW mode ple
 
 
 
-10.06.2023 : added Arduino Mega/Nano/Uno version which requires TTL logic converter for 3.3V - TXS0108E. 
-
-Added ESP32 version. 
+10.06.2023 : 
+- added Arduino Mega/Nano/Uno version which requires TTL logic converter for 3.3V - TXS0108E. 
+- Added ESP32 version. 
 
 Changed RECRAW command to start recording RAW signal once something appears over the radio. 
 
