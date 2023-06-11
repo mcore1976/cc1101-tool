@@ -54,6 +54,8 @@ Following commands are available :
     setappendstatus <mode>       // When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.
 
     getrssi                      // Shows radio quality information about last received RF data frame.
+    
+    scan <start freq> <end freq> // Scan frequency range for the highest signal and display results
 
     rx                           // Enable or disable printing of received RF packets on serial terminal.
 
