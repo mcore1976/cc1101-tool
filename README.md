@@ -182,7 +182,7 @@ int gdo2 = 5;  // D2
 
 
 --------------------------------------------------------------------------------------
-You can see how this device works here in this video : https://youtu.be/iPVckkTjsd0
+First version of this project was presented in this video : https://youtu.be/iPVckkTjsd0
 --------------------------------------------------------------------------------------
 
 
