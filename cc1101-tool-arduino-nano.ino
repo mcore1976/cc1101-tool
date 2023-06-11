@@ -161,6 +161,12 @@ static void exec(char *cmdline)
     byte j, k;
     float settingf1;
     float settingf2;
+    // variables for frequency scanner
+    float freq;
+    long compare_freq;
+    float mark_freq;
+    int rssi;
+    int mark_rssi=-100;     
     
   // identification of the command & actions
       
@@ -197,6 +203,7 @@ static void exec(char *cmdline)
          ));
         Serial.println(F(
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
+          "scan <start> <stop> : Scan frequency range for the highest signal.\r\n\r\n"         
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n"
@@ -824,7 +831,70 @@ static void exec(char *cmdline)
         bigrecordingbufferpos = 0;
         framesinbigrecordingbuffer = 0;
         Serial.print(F("\r\nRecording buffer cleared.\r\n"));
-          
+
+
+    // Handling SCAN command - frequency scanner by Little S@tan !
+    } else if (strcmp_P(command, PSTR("scan")) == 0) {
+        settingf1 = atoi(strsep(&cmdline, " "));
+        settingf2 = atoi(cmdline);
+        Serial.print(F("\r\nScanning frequency range from : "));
+        Serial.print(settingf1);
+        Serial.print(F(" MHz to "));
+        Serial.print(settingf2);
+        Serial.print(F(" MHz, press any key for stop or wait...\r\n"));  
+        // initialize parameters for scanning
+        ELECHOUSE_cc1101.Init();
+        ELECHOUSE_cc1101.setRxBW(58);
+        ELECHOUSE_cc1101.SetRx();
+        // Do scanning until some key pressed
+        freq = settingf1;  // start frequency for scanning
+        while (!Serial.available())        
+          {
+            ELECHOUSE_cc1101.setMHZ(freq);
+            rssi = ELECHOUSE_cc1101.getRssi();
+            if (rssi>-75)
+               {
+                    if (rssi > mark_rssi)
+                    {
+                          mark_rssi = rssi;  
+                          mark_freq = freq;
+                    };
+              };
+
+           freq+=0.01;
+
+           if (freq > settingf2)
+              {
+                   freq = settingf1;
+
+                   if (mark_rssi>-75)
+                    {
+                      long fr = mark_freq*100;
+                      if (fr == compare_freq)
+                          {
+                            Serial.print(F("Signal found at  "));
+                            Serial.print(F("Freq: "));
+                            Serial.print(mark_freq);
+                            Serial.print(F(" Rssi: "));
+                            Serial.println(mark_rssi);
+                            mark_rssi=-100;
+                            compare_freq = 0;
+                            mark_freq = 0;
+                          }
+                      else
+                          {
+                            compare_freq = mark_freq*100;
+                            freq = mark_freq -0.10;
+                            mark_freq=0;
+                            mark_rssi=-100;
+                          };
+                    };
+                    
+              }; // end of IF freq>stop frequency 
+              
+          };  // End of While 
+
+  
        
     // Handling ECHO command         
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
