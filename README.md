@@ -159,7 +159,7 @@ int gdo2 = 4;     // GPIO 4
 
 ----
 
-Example for Arduino Nano board - ATTENTION ! I HAVE TESTED THIS BOARD AND IT REQUIRES TTL LOGIC COVERTER 5V<->3.3V ESPECIALLY FOR BOARD CC1101 : E07-M1101D, otherwise it does not work
+Example for Arduino Nano board - ATTENTION ! I HAVE TESTED THIS BOARD AND IT REQUIRES TTL LOGIC COVERTER 5V<->3.3V TXS0108E ESPECIALLY FOR BOARD CC1101 : E07-M1101D, otherwise it does not work
 
 // defining PINs for Arduino NANO
 
