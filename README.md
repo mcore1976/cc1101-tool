@@ -204,7 +204,7 @@ Change log :
 - recraw "interval usec", 
 - playraw "interval usec", 
 - showraw - for record & replay attacking. 
-- buffer of 1536 bytes is used to store recording. 
+- buffer of 1536 bytes is used to store recording (in ATMEGA32U4, 1024 for Atmega Mega/Uno/Nano, 4096 or more for STM32 boards). 
 - after playing with RAW mode please  always enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation it will work JUST FINE.. Enjoy :-)    
 
 
@@ -213,7 +213,7 @@ Change log :
 - added Arduino Mega/Nano/Uno version which requires TTL logic converter for 3.3V - TXS0108E. 
 - added ESP32 version. 
 - changed RECRAW <sampling interval> command to start recording RAW signal once something appears over the radio. 
-- added command ADDRAW to manual compose the signal in the buffer (by copying hex number chunks from Universal Radio Hacker tool for example). 
+- added command ADDRAW to enable manual composition of the signal in the buffer (by copying hex number chunks from Universal Radio Hacker tool for example). 
 - added option SCAN <start freq> <end freq> to find a peak frequency for recording/jamming..
 
 
