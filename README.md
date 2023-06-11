@@ -209,13 +209,10 @@ Change log :
 
 10.06.2023 : 
 - added Arduino Mega/Nano/Uno version which requires TTL logic converter for 3.3V - TXS0108E. 
-- Added ESP32 version. 
-
-Changed RECRAW command to start recording RAW signal once something appears over the radio. 
-
-Added command ADDRAW to manual compose the signal in the buffer (by copying hex number chunks from Universal Radio Hacker tool for example). 
-
-Added option SCAN to find a peak frequency for recording/jamming..
+- added ESP32 version. 
+- changed RECRAW <sampling interval> command to start recording RAW signal once something appears over the radio. 
+- added command ADDRAW to manual compose the signal in the buffer (by copying hex number chunks from Universal Radio Hacker tool for example). 
+- added option SCAN <start freq> <end freq> to find a peak frequency for recording/jamming..
 
 
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
