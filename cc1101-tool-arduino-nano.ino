@@ -199,7 +199,7 @@ static void exec(char *cmdline)
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
-          "tx <hex-vals> : Send packet of max bytes <hex values> over RF\r\n"
+          "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
@@ -210,11 +210,11 @@ static void exec(char *cmdline)
           "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
           "rxraw <microseconds> : Sniffs radio by sampling with <microsecond> interval and prints received bytes in hex.\r\n\r\n"
           "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "addraw <hex-vals> : Manually add chunks (max 60 hex values) to the buffer so they can be further replayed.\r\n\r\n"        
           "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
           "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
           "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
           "x : Stops jamming/receiving/recording packets.\r\n\r\n"
-          "init : Restarts CC1101 board with default parameters\r\n\r\n"
          ));
 
     // Handling SETMODULATION command 
@@ -653,6 +653,32 @@ static void exec(char *cmdline)
                     Serial.print((char *)textbuffer);
            }
        Serial.print(F("\r\n\r\n"));
+
+
+    // Handling ADDRAW command         
+       } else if (strcmp_P(command, PSTR("addraw")) == 0) {
+        // getting hex numbers - the content of the  frame 
+        len = strlen(cmdline);
+        // convert hex array to set of bytes
+        if ((len<=120) && (len>0) )
+        { 
+                // convert the hex content to array of bytes
+                hextoascii((byte *)textbuffer, cmdline, len);        
+                len = len /2;
+                // check if the frame fits into the buffer and store it
+                if (( bigrecordingbufferpos + len) < RECORDINGBUFFERSIZE) 
+                     { // copy current frame and increase pointer for next frames
+                      memcpy(&bigrecordingbuffer[bigrecordingbufferpos], &textbuffer, len );
+                      // increase position in big recording buffer for next frame
+                      bigrecordingbufferpos = bigrecordingbufferpos + len; 
+                      Serial.print(F("\r\nChunk added to recording buffer\r\n\r\n"));
+                    }   
+               else                  
+                   {   
+                     Serial.print(F("\r\nBuffer is full. The frame does not fit.\r\n "));
+                   };
+        }  
+        else { Serial.print(F("Wrong parameters.\r\n")); };
 
 
 
