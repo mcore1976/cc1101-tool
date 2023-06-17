@@ -18,15 +18,12 @@
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 #include <avr/pgmspace.h>
+#include <EEPROM.h>
 
-// buffer for communication with CC1101 board
 #define CCBUFFERSIZE 64
-
-// ATMEGA 328 has only 2048 bytes of SRAM so the buffer will be smaller
-#define RECORDINGBUFFERSIZE 1024
-
-// buffer for incomming text CLI commands & hex values processing
-#define BUF_LENGTH 128  
+#define RECORDINGBUFFERSIZE 1024   // Buffer for recording the frames. ATMEGA328 has only 2048 SRAM storage
+#define EPROMSIZE 1024             // Size of EEPROM in your Arduino chip. ATMEGA328 has 1024
+#define BUF_LENGTH 128             // Buffer for the incoming command.
 
 // defining PINs for Arduino NANO
 byte sck = 16; // D13
@@ -171,7 +168,7 @@ static void exec(char *cmdline)
   // identification of the command & actions
       
     if (strcmp_P(command, PSTR("help")) == 0) {
-        Serial.println(F(
+         Serial.println(F(
           "setmodulation <mode> : Set modulation mode. 0 = 2-FSK, 1 = GFSK, 2 = ASK/OOK, 3 = 4-FSK, 4 = MSK.\r\n\r\n"
           "setmhz <frequency>   : Here you can set your basic frequency. default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ.\r\n\r\n"
           "setdeviation <deviation> : Set the Frequency deviation in kHz. Value from 1.58 to 380.85. Default is 47.60 kHz.\r\n\r\n"
@@ -180,9 +177,9 @@ static void exec(char *cmdline)
           "setrxbw <Receive bndwth> : Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.\r\n"
           "setdrate <datarate> : Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!\r\n\r\n"
           "setpa <power value> : Set RF transmission power. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!\r\n\r\n"
+          "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
          ));
         Serial.println(F(
-          "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
           "setsyncword <decimal LOW, decimal HIGH> : Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low) Default is 211,145\r\n\r\n"
           "setadrchk <address chk> : Controls address check configuration of received packages. 0 = No address check. 1 = Address check, no broadcast. 2 = Address check and 0 (0x00) broadcast. 3 = Address check and 0 (0x00) and 255 (0xFF) broadcast.\r\n\r\n"
           "setaddr <address> : Address used for packet filtration. Optional broadcast addresses are 0 (0x00) and 255 (0xFF).\r\n\r\n"
@@ -190,39 +187,42 @@ static void exec(char *cmdline)
           "setpktformat <pktformat> : Format of RX and TX data. 0 = Normal mode, use FIFOs for RX and TX. 1 = Synchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins. 2 = Random TX mode; sends random data using PN9 generator.  3 = Asynchronous serial mode\r\n\r\n"
           "setlengthconfig <mode> : Set packet Length mode : 0 = Fixed packet length mode. 1 = Variable packet length mode. 2 = Infinite packet length mode. 3 = Reserved \r\n\r\n"
           "setpacketlength <mode> : Indicates the packet length when fixed packet length mode is enabled. If variable packet length mode is used, this value indicates the maximum packet length allowed.\r\n\r\n"
-         ));
-        Serial.println(F(
           "setcrc <mode> : Switches on/of CRC calculation and check. 1 = CRC calculation in TX and CRC check in RX enabled. 0 = CRC disabled for TX and RX.\r\n\r\n"
           "setcrcaf <mode> : Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n\r\n"
+         ));
+        Serial.println(F(
           "setdcfilteroff <mode> : Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).\r\n\r\n"
           "setmanchester <mode> : Enables Manchester encoding/decoding. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setfec <mode> : Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setpre <mode> : Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode> : Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode> : When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
-         ));
-        Serial.println(F(
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "scan <start> <stop> : Scan frequency range for the highest signal.\r\n\r\n"         
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
+         ));
+        Serial.println(F(
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
           "show : Show content of recording buffer\r\n\r\n"
-           ));
-        Serial.println(F(
           "flush : Clear the recording buffer\r\n\r\n"
           "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
           "rxraw <microseconds> : Sniffs radio by sampling with <microsecond> interval and prints received bytes in hex.\r\n\r\n"
           "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+            ));
+        Serial.println(F(
           "addraw <hex-vals> : Manually add chunks (max 60 hex values) to the buffer so they can be further replayed.\r\n\r\n"        
           "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
           "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "save : Store recording buffer content in non-volatile memory\r\n\r\n"
+          "load : Load the content from non-volatile memory to the recording buffer\r\n\r\n"
           "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
           "x : Stops jamming/receiving/recording packets.\r\n\r\n"
-         ));
+          "init : Restarts CC1101 board with default parameters\r\n\r\n"
+        ));
 
     // Handling SETMODULATION command 
     } else if (strcmp_P(command, PSTR("setmodulation")) == 0) {
@@ -894,7 +894,36 @@ static void exec(char *cmdline)
               
           };  // End of While 
 
+
   
+
+    // handling SAVE command
+    } else if (strcmp_P(command, PSTR("save")) == 0) {
+        //start saving recording buffer content into EEPROM non-volatile memory 
+        Serial.print(F("\r\nSaving recording buffer content into the non-volatile memory...\r\n"));
+        
+        for (setting=0; setting<EPROMSIZE ; setting++)  
+           {  // copying byte after byte from SRAM to EEPROM
+            EEPROM.write(setting, bigrecordingbuffer[setting] );
+           }
+        Serial.print(F("\r\nSaving complete.\r\n\r\n"));
+
+                 
+    // handling LOAD command
+    } else if (strcmp_P(command, PSTR("load")) == 0) {     
+         // first flushing bigrecordingbuffer with zeros and rewinding all the pointers 
+        for (setting = 0; setting<RECORDINGBUFFERSIZE; setting++)  bigrecordingbuffer[setting] = 0;  
+        // and rewinding all the pointers to the recording buffer
+        bigrecordingbufferpos = 0;
+        framesinbigrecordingbuffer = 0;     
+        //start loading EEPROM non-volatile memory content into recording buffer
+        Serial.print(F("\r\nLoading content from the non-volatile memory into the recording buffer...\r\n"));
+        for (setting=0; setting<EPROMSIZE ; setting++)  
+           { // copying byte after byte from EEPROM to SRAM 
+            bigrecordingbuffer[setting] = EEPROM.read(setting);
+           }
+        Serial.print(F("\r\nLoading complete. Enter 'show' or 'showraw' to see the buffer content.\r\n\r\n"));
+                  
        
     // Handling ECHO command         
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
