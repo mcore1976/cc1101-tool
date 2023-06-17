@@ -225,6 +225,7 @@ Change log :
 17.06.2023 : 
 - added SAVE function to store recorded frames buffer into non-volatile EEPROM memory of the Arduino chip 
 - added LOAD function to restore recorded frames from non-volatile memory and put them into recording buffer for replaying.
+- corrected ESP32 version which has problem with changing (char *) type to (byte *) due to different C++ compiler for ESP32 boards
 
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
