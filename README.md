@@ -85,6 +85,10 @@ Following commands are available :
     
     playraw <microseconds>       // Replaying previously recorded RAW RF data with <microsecond> sampling interval
 
+    save                         // Store recording buffer content in non-volatile memory
+    
+    load                         // Load the content from non-volatile memory to the recording buffer
+
     echo <mode>                  // Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled
     
     chat                         // switching device into chat mode 
@@ -218,6 +222,9 @@ Change log :
 - added command ADDRAW to enable manual composition of the signal in the buffer (by copying hex number chunks from Universal Radio Hacker tool for example). 
 - added option SCAN <start freq> <end freq> to find a peak frequency for recording/jamming..
 
+17.06.2023 : 
+- added SAVE function to store recorded frames buffer into non-volatile EEPROM memory of the Arduino chip 
+- added LOAD function to restore recorded frames from non-volatile memory and put them into recording buffer for replaying.
 
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
