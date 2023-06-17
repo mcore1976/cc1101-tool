@@ -17,11 +17,13 @@
 //
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
-#include <avr/pgmspace.h>
+//#include <avr/pgmspace.h>
+#include <EEPROM.h>
 
 #define CCBUFFERSIZE 64
-#define RECORDINGBUFFERSIZE 4096
-#define BUF_LENGTH 128  /* Buffer for the incoming command. */
+#define RECORDINGBUFFERSIZE 1536   // Buffer for recording the frames
+#define EPROMSIZE 1024             // Size of EEPROM in your Arduino chip
+#define BUF_LENGTH 128             // Buffer for the incoming command.
 
 // defining PINs set for ESP32 module
 byte sck = 18;     //  GPIO 18
@@ -56,18 +58,22 @@ static bool do_echo = true;
 byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
 
 // buffer for sending  CC1101
-byte ccsendingbuffer[CCBUFFERSIZE] = {0};
+// byte ccsendingbuffer[CCBUFFERSIZE] = {0};
+char ccsendingbuffer[CCBUFFERSIZE] = {0};
+
 
 // buffer for recording and replaying of many frames
 byte bigrecordingbuffer[RECORDINGBUFFERSIZE] = {0};
 
 // buffer for hex to ascii conversions 
-byte textbuffer[BUF_LENGTH];
+// byte textbuffer[BUF_LENGTH];
+char textbuffer[BUF_LENGTH];
 
 
 
 // convert char table to string with hex numbers
-void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
+// void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
+void asciitohex(byte *ascii_ptr, char *hex_ptr,int len)
 {
     byte i,j,k;
     for(i = 0; i < len; i++)
@@ -92,7 +98,8 @@ void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
 
 
 // convert string with hex numbers to array of bytes
-void  hextoascii(byte *ascii_ptr, byte *hex_ptr,int len)
+// void  hextoascii(char *ascii_ptr, byte *hex_ptr,int len)
+void  hextoascii(char *ascii_ptr, char *hex_ptr,int len)
 {
     byte i,j;
     for(i = 0; i < (len/2); i++)
@@ -162,7 +169,7 @@ static void exec(char *cmdline)
     long compare_freq;
     float mark_freq;
     int rssi;
-    int mark_rssi=-100;  
+    int mark_rssi=-100; 
     
   // identification of the command & actions
       
@@ -176,9 +183,9 @@ static void exec(char *cmdline)
           "setrxbw <Receive bndwth> : Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.\r\n"
           "setdrate <datarate> : Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!\r\n\r\n"
           "setpa <power value> : Set RF transmission power. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!\r\n\r\n"
+          "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
          ));
         Serial.println(F(
-          "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
           "setsyncword <decimal LOW, decimal HIGH> : Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low) Default is 211,145\r\n\r\n"
           "setadrchk <address chk> : Controls address check configuration of received packages. 0 = No address check. 1 = Address check, no broadcast. 2 = Address check and 0 (0x00) broadcast. 3 = Address check and 0 (0x00) and 255 (0xFF) broadcast.\r\n\r\n"
           "setaddr <address> : Address used for packet filtration. Optional broadcast addresses are 0 (0x00) and 255 (0xFF).\r\n\r\n"
@@ -186,36 +193,38 @@ static void exec(char *cmdline)
           "setpktformat <pktformat> : Format of RX and TX data. 0 = Normal mode, use FIFOs for RX and TX. 1 = Synchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins. 2 = Random TX mode; sends random data using PN9 generator.  3 = Asynchronous serial mode\r\n\r\n"
           "setlengthconfig <mode> : Set packet Length mode : 0 = Fixed packet length mode. 1 = Variable packet length mode. 2 = Infinite packet length mode. 3 = Reserved \r\n\r\n"
           "setpacketlength <mode> : Indicates the packet length when fixed packet length mode is enabled. If variable packet length mode is used, this value indicates the maximum packet length allowed.\r\n\r\n"
-         ));
-        Serial.println(F(
           "setcrc <mode> : Switches on/of CRC calculation and check. 1 = CRC calculation in TX and CRC check in RX enabled. 0 = CRC disabled for TX and RX.\r\n\r\n"
           "setcrcaf <mode> : Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n\r\n"
+         ));
+        Serial.println(F(
           "setdcfilteroff <mode> : Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).\r\n\r\n"
           "setmanchester <mode> : Enables Manchester encoding/decoding. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setfec <mode> : Enable Forward Error Correction (FEC) with interleaving for packet payload (Only supported for fixed packet length mode. 0 = Disable. 1 = Enable.\r\n\r\n"
           "setpre <mode> : Sets the minimum number of preamble bytes to be transmitted. Values: 0 : 2, 1 : 3, 2 : 4, 3 : 6, 4 : 8, 5 : 12, 6 : 16, 7 : 24\r\n\r\n"
           "setpqt <mode> : Preamble quality estimator threshold. \r\n\r\n"
           "setappendstatus <mode> : When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
-         ));
-        Serial.println(F(
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "scan <start> <stop> : Scan frequency range for the highest signal.\r\n\r\n"         
           "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
+         ));
+        Serial.println(F(
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
           "show : Show content of recording buffer\r\n\r\n"
-           ));
-        Serial.println(F(
           "flush : Clear the recording buffer\r\n\r\n"
           "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
           "rxraw <microseconds> : Sniffs radio by sampling with <microsecond> interval and prints received bytes in hex.\r\n\r\n"
           "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+            ));
+        Serial.println(F(
           "addraw <hex-vals> : Manually add chunks (max 60 hex values) to the buffer so they can be further replayed.\r\n\r\n"        
           "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
           "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "save : Store recording buffer content in non-volatile memory\r\n\r\n"
+          "load : Load the content from non-volatile memory to the recording buffer\r\n\r\n"
           "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
           "x : Stops jamming/receiving/recording packets.\r\n\r\n"
           "init : Restarts CC1101 board with default parameters\r\n\r\n"
@@ -457,6 +466,99 @@ static void exec(char *cmdline)
         Serial.println(ELECHOUSE_cc1101.getLqi());        
         Serial.print(F("\r\n")); 
 
+
+    // Handling SCAN command - frequency scanner by Little S@tan !
+    } else if (strcmp_P(command, PSTR("scan")) == 0) {
+        settingf1 = atoi(strsep(&cmdline, " "));
+        settingf2 = atoi(cmdline);
+        Serial.print(F("\r\nScanning frequency range from : "));
+        Serial.print(settingf1);
+        Serial.print(F(" MHz to "));
+        Serial.print(settingf2);
+        Serial.print(F(" MHz, press any key for stop or wait...\r\n"));  
+        // initialize parameters for scanning
+        ELECHOUSE_cc1101.Init();
+        ELECHOUSE_cc1101.setRxBW(58);
+        ELECHOUSE_cc1101.SetRx();
+        // Do scanning until some key pressed
+        freq = settingf1;  // start frequency for scanning
+        mark_rssi=-100;   
+        while (!Serial.available())        
+          {
+            ELECHOUSE_cc1101.setMHZ(freq);
+            rssi = ELECHOUSE_cc1101.getRssi();
+            if (rssi>-75)
+               {
+                    if (rssi > mark_rssi)
+                    {
+                          mark_rssi = rssi;  
+                          mark_freq = freq;
+                    };
+              };
+
+           freq+=0.01;
+
+           if (freq > settingf2)
+              {
+                   freq = settingf1;
+
+                   if (mark_rssi>-75)
+                    {
+                      long fr = mark_freq*100;
+                      if (fr == compare_freq)
+                          {
+                            Serial.print(F("\r\nSignal found at  "));
+                            Serial.print(F("Freq: "));
+                            Serial.print(mark_freq);
+                            Serial.print(F(" Rssi: "));
+                            Serial.println(mark_rssi);
+                            mark_rssi=-100;
+                            compare_freq = 0;
+                            mark_freq = 0;
+                          }
+                      else
+                          {
+                            compare_freq = mark_freq*100;
+                            freq = mark_freq -0.10;
+                            mark_freq=0;
+                            mark_rssi=-100;
+                          };
+                    };
+                    
+              }; // end of IF freq>stop frequency 
+              
+          };  // End of While 
+
+
+    // handling SAVE command
+    } else if (strcmp_P(command, PSTR("save")) == 0) {
+        //start saving recording buffer content into EEPROM non-volatile memory 
+        Serial.print(F("\r\nSaving recording buffer content into the non-volatile memory...\r\n"));
+        
+        for (setting=0; setting<EPROMSIZE ; setting++)  
+           {  // copying byte after byte from SRAM to EEPROM
+            EEPROM.write(setting, bigrecordingbuffer[setting] );
+           }
+        Serial.print(F("\r\nSaving complete.\r\n\r\n"));
+                 
+    // handling LOAD command
+    } else if (strcmp_P(command, PSTR("load")) == 0) {     
+         // first flushing bigrecordingbuffer with zeros and rewinding all the pointers 
+        for (setting = 0; setting<RECORDINGBUFFERSIZE; setting++)  bigrecordingbuffer[setting] = 0;  
+        // and rewinding all the pointers to the recording buffer
+        bigrecordingbufferpos = 0;
+        framesinbigrecordingbuffer = 0;     
+        //start loading EEPROM non-volatile memory content into recording buffer
+        Serial.print(F("\r\nLoading content from the non-volatile memory into the recording buffer...\r\n"));
+        
+        for (setting=0; setting<EPROMSIZE ; setting++)  
+           { // copying byte after byte from EEPROM to SRAM 
+            bigrecordingbuffer[setting] = EEPROM.read(setting);
+           }
+        Serial.print(F("\r\nLoading complete. Enter 'show' or 'showraw' to see the buffer content.\r\n\r\n"));
+                  
+
+
     // Handling RX command         
        } else if (strcmp_P(command, PSTR("rx")) == 0) {
         Serial.print(F("\r\nReceiving and printing RF packet changed to "));
@@ -505,14 +607,15 @@ static void exec(char *cmdline)
         // convert hex array to set of bytes
         if ((strlen(cmdline)<=120) && (strlen(cmdline)>0) )
         { 
-                hextoascii((byte *)textbuffer, cmdline, strlen(cmdline));        
+                hextoascii(textbuffer, cmdline, strlen(cmdline));        
                 memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
                 ccsendingbuffer[strlen(cmdline)/2] = 0x00;       
                 Serial.print("\r\nTransmitting RF packets.\r\n");
                 // send these data to radio over CC1101
                 ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)(strlen(cmdline)/2));
                 // for DEBUG only
-                asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
+                // asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
+                asciitohex((byte *)ccsendingbuffer, textbuffer,  strlen(cmdline)/2 );
                 Serial.print(F("Sent frame: "));
                 Serial.print((char *)textbuffer);
                 Serial.print(F("\r\n")); }
@@ -530,16 +633,9 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.setCCMode(0); 
         ELECHOUSE_cc1101.setPktFormat(3);
         ELECHOUSE_cc1101.SetRx();
-        
         //start recording to the buffer with bitbanging of GDO0 pin state
-        Serial.print(F("\r\nWaiting for radio signal to start RAW recording...\r\n"));
+        Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
         pinMode(gdo0, INPUT);
-
-        // waiting for some data first or serial port signal
-        // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
-        while ( digitalRead(gdo0) == LOW ); 
-
-        // start capturing
 
         for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
            { 
@@ -595,7 +691,8 @@ static void exec(char *cmdline)
              // when buffer full print the ouptput to serial port
              for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
                     { 
-                       asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                       // asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                       asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                        Serial.print((char *)textbuffer);
                     };
                     
@@ -654,36 +751,11 @@ static void exec(char *cmdline)
        Serial.print(F("\r\nRecorded RAW data:\r\n"));
        for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
            { 
-                    asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                    // asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                    asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                     Serial.print((char *)textbuffer);
            }
        Serial.print(F("\r\n\r\n"));
-
-
-    // Handling ADDRAW command         
-       } else if (strcmp_P(command, PSTR("addraw")) == 0) {
-        // getting hex numbers - the content of the  frame 
-        len = strlen(cmdline);
-        // convert hex array to set of bytes
-        if ((len<=120) && (len>0) )
-        { 
-                // convert the hex content to array of bytes
-                hextoascii((byte *)textbuffer, cmdline, len);        
-                len = len /2;
-                // check if the frame fits into the buffer and store it
-                if (( bigrecordingbufferpos + len) < RECORDINGBUFFERSIZE) 
-                     { // copy current frame and increase pointer for next frames
-                      memcpy(&bigrecordingbuffer[bigrecordingbufferpos], &textbuffer, len );
-                      // increase position in big recording buffer for next frame
-                      bigrecordingbufferpos = bigrecordingbufferpos + len; 
-                      Serial.print(F("\r\nChunk added to recording buffer\r\n\r\n"));
-                    }   
-               else                  
-                   {   
-                     Serial.print(F("\r\nBuffer is full. The frame does not fit.\r\n "));
-                   };
-        }  
-        else { Serial.print(F("Wrong parameters.\r\n")); };
 
 
 
@@ -758,7 +830,7 @@ static void exec(char *cmdline)
         if ((len<=120) && (len>0) )
         { 
                 // convert the hex content to array of bytes
-                hextoascii((byte *)textbuffer, cmdline, len);        
+                hextoascii(textbuffer, cmdline, len);        
                 len = len /2;
                 // check if the frame fits into the buffer and store it
                 if (( bigrecordingbufferpos + len + 1) < RECORDINGBUFFERSIZE) 
@@ -802,7 +874,8 @@ static void exec(char *cmdline)
                     // flush textbuffer
                     for (setting2 = 0; setting2 < BUF_LENGTH; setting2++)
                         { textbuffer[setting2] = 0; };           
-                    asciitohex((byte *)&bigrecordingbuffer[bigrecordingbufferpos + 1], (byte *)textbuffer,  len);
+                    // asciitohex((byte *)&bigrecordingbuffer[bigrecordingbufferpos + 1], (byte *)textbuffer,  len);
+                    asciitohex(&bigrecordingbuffer[bigrecordingbufferpos + 1], textbuffer,  len);
                     Serial.print(F("\r\nFrame "));
                     Serial.print(setting);
                     Serial.print(F(" : "));                     
@@ -830,67 +903,7 @@ static void exec(char *cmdline)
         framesinbigrecordingbuffer = 0;
         Serial.print(F("\r\nRecording buffer cleared.\r\n"));
           
-    // Handling SCAN command - frequency scanner by Little S@tan !
-    } else if (strcmp_P(command, PSTR("scan")) == 0) {
-        settingf1 = atoi(strsep(&cmdline, " "));
-        settingf2 = atoi(cmdline);
-        Serial.print(F("\r\nScanning frequency range from : "));
-        Serial.print(settingf1);
-        Serial.print(F(" MHz to "));
-        Serial.print(settingf2);
-        Serial.print(F(" MHz, press any key for stop or wait...\r\n"));  
-        // initialize parameters for scanning
-        ELECHOUSE_cc1101.Init();
-        ELECHOUSE_cc1101.setRxBW(58);
-        ELECHOUSE_cc1101.SetRx();
-        // Do scanning until some key pressed
-        freq = settingf1;  // start frequency for scanning
-        while (!Serial.available())        
-          {
-            ELECHOUSE_cc1101.setMHZ(freq);
-            rssi = ELECHOUSE_cc1101.getRssi();
-            if (rssi>-75)
-               {
-                    if (rssi > mark_rssi)
-                    {
-                          mark_rssi = rssi;  
-                          mark_freq = freq;
-                    };
-              };
-
-           freq+=0.01;
-
-           if (freq > settingf2)
-              {
-                   freq = settingf1;
-
-                   if (mark_rssi>-75)
-                    {
-                      long fr = mark_freq*100;
-                      if (fr == compare_freq)
-                          {
-                            Serial.print(F("Signal found at  "));
-                            Serial.print(F("Freq: "));
-                            Serial.print(mark_freq);
-                            Serial.print(F(" Rssi: "));
-                            Serial.println(mark_rssi);
-                            mark_rssi=-100;
-                            compare_freq = 0;
-                            mark_freq = 0;
-                          }
-                      else
-                          {
-                            compare_freq = mark_freq*100;
-                            freq = mark_freq -0.10;
-                            mark_freq=0;
-                            mark_rssi=-100;
-                          };
-                    };
-                    
-              }; // end of IF freq>stop frequency 
-              
-          };  // End of While 
-        
+       
     // Handling ECHO command         
     } else if (strcmp_P(command, PSTR("echo")) == 0) {
         do_echo = atoi(cmdline);
@@ -1046,7 +1059,8 @@ void loop() {
                    
                    //Print received packet as set of hex values directly 
                    // not to loose any data in buffer
-                   asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
+                   // asciitohex((byte *)ccreceivingbuffer, (byte *)textbuffer,  len);
+                   asciitohex(ccreceivingbuffer, textbuffer,  len);
                    Serial.print((char *)textbuffer);
                    // set RX  mode again
                    ELECHOUSE_cc1101.SetRx();
