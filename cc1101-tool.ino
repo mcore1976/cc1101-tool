@@ -183,7 +183,7 @@ static void exec(char *cmdline)
           "setrxbw <Receive bndwth> : Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.\r\n"
           "setdrate <datarate> : Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!\r\n\r\n"
           "setpa <power value> : Set RF transmission power. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!\r\n\r\n"
-          "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n\r\n"
+          "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n"
          ));
         Serial.println(F(
           "setsyncword <decimal LOW, decimal HIGH> : Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low) Default is 211,145\r\n\r\n"
@@ -194,7 +194,7 @@ static void exec(char *cmdline)
           "setlengthconfig <mode> : Set packet Length mode : 0 = Fixed packet length mode. 1 = Variable packet length mode. 2 = Infinite packet length mode. 3 = Reserved \r\n\r\n"
           "setpacketlength <mode> : Indicates the packet length when fixed packet length mode is enabled. If variable packet length mode is used, this value indicates the maximum packet length allowed.\r\n\r\n"
           "setcrc <mode> : Switches on/of CRC calculation and check. 1 = CRC calculation in TX and CRC check in RX enabled. 0 = CRC disabled for TX and RX.\r\n\r\n"
-          "setcrcaf <mode> : Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n\r\n"
+          "setcrcaf <mode> : Enable automatic flush of RX FIFO when CRC is not OK. This requires that only one packet is in the RXIFIFO and that packet length is limited to the RX FIFO size.\r\n"
          ));
         Serial.println(F(
           "setdcfilteroff <mode> : Disable digital DC blocking filter before demodulator. Only for data rates ≤ 250 kBaud The recommended IF frequency changes when the DC blocking is disabled. 1 = Disable (current optimized). 0 = Enable (better sensitivity).\r\n\r\n"
@@ -205,7 +205,7 @@ static void exec(char *cmdline)
           "setappendstatus <mode> : When enabled, two status bytes will be appended to the payload of the packet. The status bytes contain RSSI and LQI values, as well as CRC OK.\r\n\r\n"
           "getrssi : Display quality information about last received frames over RF\r\n\r\n"
           "scan <start> <stop> : Scan frequency range for the highest signal.\r\n\r\n"         
-          "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n\r\n"
+          "chat :  Enable chat mode between many devices. No exit available, disconnect device to quit\r\n"
          ));
         Serial.println(F(
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
@@ -217,12 +217,13 @@ static void exec(char *cmdline)
           "flush : Clear the recording buffer\r\n\r\n"
           "play <N> : Replay 0 = all frames or N-th recorded frame previously stored in the buffer.\r\n\r\n"
           "rxraw <microseconds> : Sniffs radio by sampling with <microsecond> interval and prints received bytes in hex.\r\n\r\n"
-          "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "recraw <microseconds> : Recording RAW RF data with <microsecond> sampling interval.\r\n"
             ));
         Serial.println(F(
           "addraw <hex-vals> : Manually add chunks (max 60 hex values) to the buffer so they can be further replayed.\r\n\r\n"        
           "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
           "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
+          "showbit : Showing content of recording buffer in RAW format as a stream of bits.\r\n\r\n"
           "save : Store recording buffer content in non-volatile memory\r\n\r\n"
           "load : Load the content from non-volatile memory to the recording buffer\r\n\r\n"
           "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
@@ -677,6 +678,91 @@ static void exec(char *cmdline)
                     Serial.print((char *)textbuffer);
            }
        Serial.print(F("\r\n\r\n"));
+
+
+    // handling SHOWBIT command
+    } else if (strcmp_P(command, PSTR("showbit")) == 0) {
+    // show the content of recorded RAW signal as hex numbers
+       Serial.print(F("\r\nRecorded RAW data as bit stream:\r\n"));
+       for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
+           {        // first convert to hex numbers
+                    asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
+                    // now decode as binary and print
+                    for (setting = 0; setting < 32 ; setting++)
+                        {
+                        setting2 = textbuffer[setting];
+                        switch( setting2 )
+                              {
+                              case '0':
+                              Serial.print(F("____"));
+                              break;
+   
+                              case '1':
+                              Serial.print(F("___-"));
+                              break;
+   
+                              case '2':
+                              Serial.print(F("__-_"));
+                              break;
+
+                              case '3':
+                              Serial.print(F("__--"));
+                              break;
+
+                              case '4':
+                              Serial.print(F("_-__"));
+                              break;
+
+                              case '5':
+                              Serial.print(F("_-_-"));
+                              break;
+
+                              case '6':
+                              Serial.print(F("_--_"));
+                              break;
+
+                              case '7':
+                              Serial.print(F("_---"));
+                              break;
+
+                              case '8':
+                              Serial.print(F("-___"));
+                              break;
+
+                              case '9':
+                              Serial.print(F("-__-"));
+                              break;
+
+                              case 'A':
+                              Serial.print(F("-_-_"));
+                              break;
+
+                              case 'B':
+                              Serial.print(F("-_--"));
+                              break;
+
+                              case 'C':
+                              Serial.print(F("-_-_"));
+                              break;
+
+                              case 'D':
+                              Serial.print(F("-_--"));
+                              break;
+
+                              case 'E':
+                              Serial.print(F("---_"));
+                              break;
+
+                              case 'F':
+                              Serial.print(F("----"));
+                              break;
+                              
+                              }; // end of switch
+                              
+                        }; // end of for
+ 
+              } // end of for
+              Serial.print(F("\r\n\r\n"));
 
 
     // Handling ADDRAW command         
