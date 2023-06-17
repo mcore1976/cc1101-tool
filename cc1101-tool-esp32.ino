@@ -58,22 +58,20 @@ static bool do_echo = true;
 byte ccreceivingbuffer[CCBUFFERSIZE] = {0};
 
 // buffer for sending  CC1101
-// byte ccsendingbuffer[CCBUFFERSIZE] = {0};
-char ccsendingbuffer[CCBUFFERSIZE] = {0};
-
+byte ccsendingbuffer[CCBUFFERSIZE] = {0};
+//char ccsendingbuffer[CCBUFFERSIZE] = {0};
 
 // buffer for recording and replaying of many frames
 byte bigrecordingbuffer[RECORDINGBUFFERSIZE] = {0};
 
 // buffer for hex to ascii conversions 
-// byte textbuffer[BUF_LENGTH];
-char textbuffer[BUF_LENGTH];
+byte textbuffer[BUF_LENGTH];
+//char textbuffer[BUF_LENGTH];
 
 
 
-// convert char table to string with hex numbers
-// void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
-void asciitohex(byte *ascii_ptr, char *hex_ptr,int len)
+// convert bytes in table to string with hex numbers
+void asciitohex(byte *ascii_ptr, byte *hex_ptr,int len)
 {
     byte i,j,k;
     for(i = 0; i < len; i++)
@@ -98,8 +96,7 @@ void asciitohex(byte *ascii_ptr, char *hex_ptr,int len)
 
 
 // convert string with hex numbers to array of bytes
-// void  hextoascii(char *ascii_ptr, byte *hex_ptr,int len)
-void  hextoascii(char *ascii_ptr, char *hex_ptr,int len)
+ void  hextoascii(byte *ascii_ptr, byte *hex_ptr,int len)
 {
     byte i,j;
     for(i = 0; i < (len/2); i++)
@@ -607,15 +604,14 @@ static void exec(char *cmdline)
         // convert hex array to set of bytes
         if ((strlen(cmdline)<=120) && (strlen(cmdline)>0) )
         { 
-                hextoascii(textbuffer, cmdline, strlen(cmdline));        
+                hextoascii(textbuffer,(byte *)cmdline, strlen(cmdline));        
                 memcpy(ccsendingbuffer, textbuffer, strlen(cmdline)/2 );
                 ccsendingbuffer[strlen(cmdline)/2] = 0x00;       
                 Serial.print("\r\nTransmitting RF packets.\r\n");
                 // send these data to radio over CC1101
                 ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)(strlen(cmdline)/2));
                 // for DEBUG only
-                // asciitohex((byte *)ccsendingbuffer, (byte *)textbuffer,  strlen(cmdline)/2 );
-                asciitohex((byte *)ccsendingbuffer, textbuffer,  strlen(cmdline)/2 );
+                asciitohex(ccsendingbuffer, textbuffer,  strlen(cmdline)/2 );
                 Serial.print(F("Sent frame: "));
                 Serial.print((char *)textbuffer);
                 Serial.print(F("\r\n")); }
@@ -691,7 +687,6 @@ static void exec(char *cmdline)
              // when buffer full print the ouptput to serial port
              for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
                     { 
-                       // asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
                        asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                        Serial.print((char *)textbuffer);
                     };
@@ -751,7 +746,6 @@ static void exec(char *cmdline)
        Serial.print(F("\r\nRecorded RAW data:\r\n"));
        for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
            { 
-                    // asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
                     asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                     Serial.print((char *)textbuffer);
            }
@@ -830,7 +824,7 @@ static void exec(char *cmdline)
         if ((len<=120) && (len>0) )
         { 
                 // convert the hex content to array of bytes
-                hextoascii(textbuffer, cmdline, len);        
+                hextoascii(textbuffer,(byte *)cmdline, len);        
                 len = len /2;
                 // check if the frame fits into the buffer and store it
                 if (( bigrecordingbufferpos + len + 1) < RECORDINGBUFFERSIZE) 
@@ -874,7 +868,6 @@ static void exec(char *cmdline)
                     // flush textbuffer
                     for (setting2 = 0; setting2 < BUF_LENGTH; setting2++)
                         { textbuffer[setting2] = 0; };           
-                    // asciitohex((byte *)&bigrecordingbuffer[bigrecordingbufferpos + 1], (byte *)textbuffer,  len);
                     asciitohex(&bigrecordingbuffer[bigrecordingbufferpos + 1], textbuffer,  len);
                     Serial.print(F("\r\nFrame "));
                     Serial.print(setting);
@@ -998,7 +991,7 @@ void loop() {
             ccsendingbuffer[i] = '\0';
 
             // send these data to radio over CC1101
-            ELECHOUSE_cc1101.SendData(ccsendingbuffer);
+            ELECHOUSE_cc1101.SendData((char *)ccsendingbuffer);
 
                 
        }
