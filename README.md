@@ -82,7 +82,9 @@ Following commands are available :
     recraw <microseconds>        // Recording RAW RF data with <microsecond> sampling interval
     
     showraw                      // Showing content of recording buffer in RAW format
-    
+
+    showbit                      // Showing content of recording buffer in RAW format as a stream of bits.
+
     playraw <microseconds>       // Replaying previously recorded RAW RF data with <microsecond> sampling interval
 
     save                         // Store recording buffer content in non-volatile memory
@@ -225,6 +227,7 @@ Change log :
 17.06.2023 : 
 - added SAVE function to store recorded frames buffer into non-volatile EEPROM memory of the Arduino chip 
 - added LOAD function to restore recorded frames from non-volatile memory and put them into recording buffer for replaying.
+- added SHOWBIT command to display RAW data from the buffer as stream of bits.
 - corrected ESP32 version which has problem with changing (char *) type to (byte *) due to different C++ compiler for ESP32 boards
 
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
