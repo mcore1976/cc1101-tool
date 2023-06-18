@@ -230,6 +230,10 @@ Change log :
 - added SHOWBIT command to display RAW data from the buffer as stream of bits.
 - corrected ESP32 version which has problem with changing (char *) type to (byte *) due to different C++ compiler for ESP32 boards
 
+18.06.2023 : 
+- updated bit storage order in PLAYRAW, RXRAW, RECRAW commands to match the type used in Universal Radio Hacker tool
+
+  
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
     
