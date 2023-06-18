@@ -557,7 +557,7 @@ static void exec(char *cmdline)
         for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = 0;
-             for(int j=0; j<8; j++)  // 8 bits in a byte
+             for(int j=7; j > -1; j--)  // 8 bits in a byte
                {
                  bitWrite(receivedbyte, j, digitalRead(gdo0)); // Capture GDO0 state into the byte
                  delayMicroseconds(setting);                   // delay for selected sampling interval
@@ -597,7 +597,7 @@ static void exec(char *cmdline)
              for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
                 { 
                   byte receivedbyte = 0;
-                  for(int j=0; j<8; j++)  // 8 bits in a byte
+                  for(int j=7; j > -1; j--)  // 8 bits in a byte
                     {
                        bitWrite(receivedbyte, j, digitalRead(gdo0));  // Capture GDO0 state into the byte
                        delayMicroseconds(setting);                    // delay for selected sampling interval
@@ -648,7 +648,7 @@ static void exec(char *cmdline)
         for (int i=1; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = bigrecordingbuffer[i];
-             for(int j=0; j<8; j++)  // 8 bits in a byte
+             for(int j=7; j > -1; j--)  // 8 bits in a byte
                {
                  digitalWrite(gdo0, bitRead(receivedbyte, j)); // Set GDO0 according to recorded byte
                  delayMicroseconds(setting);                      // delay for selected sampling interval
