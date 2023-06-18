@@ -725,11 +725,11 @@ static void exec(char *cmdline)
                               break;
 
                               case 'C':
-                              Serial.print(F("-_-_"));
+                              Serial.print(F("--__"));
                               break;
 
                               case 'D':
-                              Serial.print(F("-_--"));
+                              Serial.print(F("--_-"));
                               break;
 
                               case 'E':
