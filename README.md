@@ -212,7 +212,7 @@ Change log :
 - recraw "interval usec", 
 - playraw "interval usec", 
 - showraw - for record & replay attacking. 
-- buffer of 1536 bytes is used to store recording (in ATMEGA32U4, 1024 for Atmega Mega/Uno/Nano, 4096 or more for STM32 boards). 
+- buffer of 1536 bytes is used to store recording (in ATMEGA32U4, 1024 for Atmega Mega/Uno/Nano, 4096 or more for ESP32 boards). 
 - after playing with RAW mode please  always enter "init" command to restart CC1101 chip. Don't worry about Low Memory warning during Arduino compilation it will work JUST FINE.. Enjoy :-)    
 
 
