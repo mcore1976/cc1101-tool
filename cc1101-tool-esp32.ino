@@ -21,8 +21,8 @@
 #include <EEPROM.h>
 
 #define CCBUFFERSIZE 64
-#define RECORDINGBUFFERSIZE 1536   // Buffer for recording the frames
-#define EPROMSIZE 1024             // Size of EEPROM in your Arduino chip
+#define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
+#define EPROMSIZE 512              // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated 512 bytes
 #define BUF_LENGTH 128             // Buffer for the incoming command.
 
 // defining PINs set for ESP32 module
@@ -536,6 +536,8 @@ static void exec(char *cmdline)
         for (setting=0; setting<EPROMSIZE ; setting++)  
            {  // copying byte after byte from SRAM to EEPROM
             EEPROM.write(setting, bigrecordingbuffer[setting] );
+            // following command is required for ESP32
+            EEPROM.commit();   
            }
         Serial.print(F("\r\nSaving complete.\r\n\r\n"));
                  
