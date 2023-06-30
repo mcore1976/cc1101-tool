@@ -253,6 +253,9 @@ Change log :
 18.06.2023 : 
 - updated bit storage order in PLAYRAW, RXRAW, RECRAW commands to match the type used in Universal Radio Hacker tool : https://github.com/jopohl/urh
 
+30.06.2023
+- added debug message during CC1101 startup, corrected EEPROM usage for ESP32 chip based Arduino
+
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
