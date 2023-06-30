@@ -174,6 +174,7 @@ int gdo2 = 4;     // GPIO 4
 Example for XIAO ESP32 C3
 
 // defining PINs set for ESP32 module
+
 byte sck = 8;
 
 byte miso = 4;
