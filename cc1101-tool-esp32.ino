@@ -26,13 +26,23 @@
 #define BUF_LENGTH 128             // Buffer for the incoming command.
 
 // defining PINs set for ESP32 module
+// Example for XIAO ESP32 C3
+byte sck = 8;
+byte miso = 4;
+byte mosi = 10;
+byte ss = 20;
+int gdo0 = 21;
+int gdo2 = 7;
+
+// defining PINs set for ESP32 WROOM module
+/*
 byte sck = 18;     //  GPIO 18
 byte miso = 19;  //  GPIO 19
 byte mosi = 23;  // GPIO
 byte ss = 5;        // GPIO 5
 int gdo0 = 2;     // GPIO 2
 int gdo2 = 4;     // GPIO 4
-
+*/
 
 // position in big recording buffer
 int bigrecordingbufferpos = 0; 
