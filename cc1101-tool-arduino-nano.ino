@@ -1058,6 +1058,13 @@ void setup() {
      // initialize CC1101 module with preffered parameters
      cc1101initialize();
 
+     if (ELECHOUSE_cc1101.getCC1101()) {  // Check the CC1101 Spi connection.
+     Serial.println(F("cc1101 initialized. Connection OK\n\r"));
+       } 
+     else {
+     Serial.println(F("cc1101 connection error! check the wiring.\n\r"));
+         };
+    
      // setup variables
      bigrecordingbufferpos = 0;
 }
