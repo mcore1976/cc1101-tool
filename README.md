@@ -268,6 +268,7 @@ Change log :
 - added debug message during CC1101 startup
 - corrected EEPROM usage for ESP32 chip based Arduino - ESP32 has 512 bytes, ESP8266 has 4096 bytes
 - added ESP32-WROOM version ( I have tested it succesfully with my own board )
+- added ESP8266 - WEMOS D1 Mini version
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
