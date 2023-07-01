@@ -861,6 +861,33 @@ static void exec(char *cmdline)
               Serial.print(F("\r\n\r\n"));
 
 
+    // Handling ADDRAW command         
+       } else if (strcmp_P(command, PSTR("addraw")) == 0) {
+        // getting hex numbers - the content of the  frame 
+        len = strlen(cmdline);
+        // convert hex array to set of bytes
+        if ((len<=120) && (len>0) )
+        { 
+                // convert the hex content to array of bytes
+                hextoascii(textbuffer, (byte *)cmdline, len);        
+                len = len /2;
+                // check if the frame fits into the buffer and store it
+                if (( bigrecordingbufferpos + len) < RECORDINGBUFFERSIZE) 
+                     { // copy current frame and increase pointer for next frames
+                      memcpy(&bigrecordingbuffer[bigrecordingbufferpos], &textbuffer, len );
+                      // increase position in big recording buffer for next frame
+                      bigrecordingbufferpos = bigrecordingbufferpos + len; 
+                      Serial.print(F("\r\nChunk added to recording buffer\r\n\r\n"));
+                    }   
+               else                  
+                   {   
+                     Serial.print(F("\r\nBuffer is full. The frame does not fit.\r\n "));
+                   };
+        }  
+        else { Serial.print(F("Wrong parameters.\r\n")); };
+
+
+        
     // Handling REC command         
     } else if (strcmp_P(command, PSTR("rec")) == 0) {
         Serial.print(F("\r\nRecording mode set to "));
