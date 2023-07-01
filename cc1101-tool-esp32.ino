@@ -642,6 +642,15 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.setCCMode(0); 
         ELECHOUSE_cc1101.setPktFormat(3);
         ELECHOUSE_cc1101.SetRx();
+
+        //start recording to the buffer with bitbanging of GDO0 pin state
+        Serial.print(F("\r\nWaiting for radio signal to start RAW recording...\r\n"));
+        pinMode(gdo0, INPUT);
+
+        // waiting for some data first or serial port signal
+        // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
+        while ( digitalRead(gdo0) == LOW ); 
+            
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
         pinMode(gdo0, INPUT);
