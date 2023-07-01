@@ -174,7 +174,27 @@ int gdo0 = 21;
 
 int gdo2 = 7;
 
+----
 
+Example for WEMOS D1 MINI module
+
+#define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
+
+#define EPROMSIZE 4096              // Size of EEPROM in your Arduino chip. For  ESP8266 size is 4096
+
+// defining PINs set for ESP8266 - WEMOS D1 MINI module
+
+byte sck = 14;     // GPIO 14
+
+byte miso = 12;  // GPIO 12
+
+byte mosi = 13;  // GPIO 13
+
+byte ss = 15;      // GPIO 15
+
+int gdo0 = 5;     // GPIO 5
+
+int gdo2 = 4;     // GPIO 4
 
 ----
 
