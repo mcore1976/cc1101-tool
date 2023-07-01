@@ -648,14 +648,15 @@ static void exec(char *cmdline)
         Serial.print(F("\r\nWaiting for radio signal to start RAW recording...\r\n"));
         pinMode(gdo0, INPUT);
 
+        delayMicroseconds(10000);  // special delay for ESP32 boards
+
         // waiting for some data first or serial port signal
-        // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
+        //while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
         while ( digitalRead(gdo0) == LOW ); 
 
         
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
-        pinMode(gdo0, INPUT);
 
         for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
            { 
