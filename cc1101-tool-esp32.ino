@@ -546,9 +546,10 @@ static void exec(char *cmdline)
         for (setting=0; setting<EPROMSIZE ; setting++)  
            {  // copying byte after byte from SRAM to EEPROM
             EEPROM.write(setting, bigrecordingbuffer[setting] );
-            // following command is required for ESP32
-            EEPROM.commit();   
-           }
+           };
+        // following command is required for ESP32
+        EEPROM.commit();   
+        // print confirmation
         Serial.print(F("\r\nSaving complete.\r\n\r\n"));
                  
     // handling LOAD command
