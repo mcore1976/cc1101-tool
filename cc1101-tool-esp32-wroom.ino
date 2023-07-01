@@ -22,7 +22,7 @@
 
 #define CCBUFFERSIZE 64
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
-#define EPROMSIZE 4096             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
+#define EPROMSIZE 512              // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
 #define BUF_LENGTH 128             // Buffer for the incoming command.
 
 // defining PINs set for ESP32 module
