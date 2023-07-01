@@ -128,7 +128,7 @@ GND <-> CC1101 GND
 
 ----
 
-If you want to use different Arduino Board, please change pin assignment in the beginning of the source code and adjust numebr of EEPROM/FLASH for storing recorded data  and SRAM memory
+If you want to use different Arduino Board, please change pin assignment in the beginning of the source code and adjust number of EEPROM/FLASH for storing recorded data  and SRAM memory
 
 ----
 
