@@ -136,7 +136,7 @@ Example for ESP32 board :
 
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
 
-#define EPROMSIZE 4094             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
+#define EPROMSIZE 512              // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated 512 bytes only
 
 // defining PINs set for ESP32 module
 
@@ -158,7 +158,7 @@ Example for XIAO ESP32 C3
 
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
 
-#define EPROMSIZE 4094             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
+#define EPROMSIZE 512              // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated 512 bytes only
 
 // defining PINs set for ESP32 module
 
