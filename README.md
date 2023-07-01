@@ -128,32 +128,14 @@ GND <-> CC1101 GND
 
 ----
 
-If you want to use different Arduino Board, please change pin assignment in the beginning of the source code here
-
-
-// if using different board, please change it to your board assignments
-// defining PINs set for Arduino Pro Micro setup
-
-byte sck = 15;   
-
-byte miso = 14;
-
-byte mosi = 16;
-
-byte ss = 10;
-
-int gdo0 = 3;
-
-int gdo2 = 9;
-
-and TUNE this buffer size to fit to SRAM memory on you Arduino board
-
-#define RECORDINGBUFFERSIZE 1536
-
+If you want to use different Arduino Board, please change pin assignment in the beginning of the source code and adjust numebr of EEPROM/FLASH for storing recorded data  and SRAM memory
 
 ----
 
 Example for ESP32 board :
+
+#define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
+#define EPROMSIZE 4094             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
 
 // defining PINs set for ESP32 module
 
@@ -172,6 +154,9 @@ int gdo2 = 4;     // GPIO 4
 ----
 
 Example for XIAO ESP32 C3
+
+#define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
+#define EPROMSIZE 4094             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
 
 // defining PINs set for ESP32 module
 
@@ -192,6 +177,9 @@ int gdo2 = 7;
 ----
 
 Example for Arduino Nano board - ATTENTION ! I HAVE TESTED THIS BOARD AND IT REQUIRES TTL LOGIC COVERTER 5V<->3.3V TXS0108E ESPECIALLY FOR BOARD CC1101 : E07-M1101D, otherwise it does not work
+
+#define RECORDINGBUFFERSIZE 1024   // Buffer for recording the frames
+#define EPROMSIZE 1024             // Size of EEPROM in your Arduino chip. 
 
 // defining PINs for Arduino NANO
 
