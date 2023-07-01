@@ -1048,7 +1048,7 @@ void setup() {
       Serial.println(F("cc1101 connection error! check the wiring.\n\r"));
       };
 
-      / setup variables
+      // setup variables
      bigrecordingbufferpos = 0;
 }
 
