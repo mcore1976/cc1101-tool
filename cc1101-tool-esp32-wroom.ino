@@ -17,7 +17,6 @@
 //
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
-//#include <avr/pgmspace.h>
 #include <EEPROM.h>
 
 #define CCBUFFERSIZE 64
