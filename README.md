@@ -135,6 +135,7 @@ If you want to use different Arduino Board, please change pin assignment in the 
 Example for ESP32 board :
 
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
+
 #define EPROMSIZE 4094             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
 
 // defining PINs set for ESP32 module
