@@ -22,7 +22,7 @@
 
 #define CCBUFFERSIZE 64
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
-#define EPROMSIZE 4094             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
+#define EPROMSIZE 4096             // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated so very slow
 #define BUF_LENGTH 128             // Buffer for the incoming command.
 
 // defining PINs set for ESP32 module
@@ -546,9 +546,10 @@ static void exec(char *cmdline)
         for (setting=0; setting<EPROMSIZE ; setting++)  
            {  // copying byte after byte from SRAM to EEPROM
             EEPROM.write(setting, bigrecordingbuffer[setting] );
-            // following command is required for ESP32
-            EEPROM.commit();   
-           }
+           };
+        // following command is required for ESP32
+        EEPROM.commit();      
+        // print confirmation
         Serial.print(F("\r\nSaving complete.\r\n\r\n"));
                  
     // handling LOAD command
@@ -1071,13 +1072,14 @@ void setup() {
      // initialize USB Serial Port CDC
      Serial.begin(115200);
 
+    //Init EEPROM - for ESP32 based boards only
+     EEPROM.begin(EPROMSIZE);     
+
      Serial.println(F("CC1101 terminal tool connected, use 'help' for list of commands...\n\r"));
      Serial.println(F("(C) Adam Loboda 2023\n\r  "));
 
      Serial.println();  // print CRLF
 
-    //Init EEPROM - for ESP32 based boards only
-     EEPROM.begin(EPROMSIZE);
     
      // initialize CC1101 module with preffered parameters
      cc1101initialize();
