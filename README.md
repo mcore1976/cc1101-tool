@@ -255,6 +255,7 @@ Change log :
 
 30.06.2023
 - added debug message during CC1101 startup, corrected EEPROM usage for ESP32 chip based Arduino
+- added ESP32-WROOM version, keep in mind that FLASH simulated EEPROM is very slow. It takes 10 seconds or more for "save" command but it works
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
