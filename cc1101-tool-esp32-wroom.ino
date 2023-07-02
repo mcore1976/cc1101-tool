@@ -183,11 +183,11 @@ static void exec(char *cmdline)
         Serial.println(F(
           "setmodulation <mode> : Set modulation mode. 0 = 2-FSK, 1 = GFSK, 2 = ASK/OOK, 3 = 4-FSK, 4 = MSK.\r\n\r\n"
           "setmhz <frequency>   : Here you can set your basic frequency. default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ.\r\n\r\n"
-          "setdeviation <deviation> : Set the Frequency deviation in kHz. Value from 1.58 to 380.85. Default is 47.60 kHz.\r\n\r\n"
+          "setdeviation <deviation> : Set the Frequency deviation in kHz. Value from 1.58 to 380.85.\r\n\r\n"
           "setchannel <channel> : Set the Channelnumber from 0 to 255. Default is cahnnel 0.\r\n\r\n"
-          "setchsp <spacing>  :  The channel spacing is multiplied by the channel number CHAN and added to the base frequency in kHz. Value from 25.39 to 405.45. Default is 199.95 kHz. \r\n\r\n"
-          "setrxbw <Receive bndwth> : Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.\r\n"
-          "setdrate <datarate> : Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!\r\n\r\n"
+          "setchsp <spacing>  :  The channel spacing is multiplied by the channel number CHAN and added to the base frequency in kHz. Value from 25.39 to 405.45. \r\n\r\n"
+          "setrxbw <Receive bndwth> : Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. \r\n\r\n"
+          "setdrate <datarate> : Set the Data Rate in kBaud. Value from 0.02 to 1621.83.\r\n\r\n"
           "setpa <power value> : Set RF transmission power. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!\r\n\r\n"
           "setsyncmode  <sync mode> : Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.\r\n"
          ));
@@ -215,7 +215,7 @@ static void exec(char *cmdline)
          ));
         Serial.println(F(
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
-          "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n"
+          "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
