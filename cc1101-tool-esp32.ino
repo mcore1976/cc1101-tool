@@ -647,7 +647,10 @@ static void exec(char *cmdline)
         Serial.print(F("\r\nWaiting for radio signal to start RAW recording...\r\n"));
         pinMode(gdo0, INPUT);
 
-        delayMicroseconds(1000);  // special delay for ESP32 boards
+        // this is only for ESP32 boards because they are getting some noise on the beginning
+        setting2 = digitalRead(gdo0);
+        delayMicroseconds(1000);  
+
             
         // waiting for some data first or serial port signal
         // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
