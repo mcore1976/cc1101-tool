@@ -644,7 +644,8 @@ static void exec(char *cmdline)
             
         // waiting for some data first or serial port signal
         // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
-        while ( digitalRead(gdo0) == LOW ); 
+        // feed the watchdog while waiting for the signal    
+        while ( digitalRead(gdo0) == LOW )        ESP.wdtFeed(); 
             
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
@@ -660,6 +661,8 @@ static void exec(char *cmdline)
                }; 
                  // store the output into recording buffer
              bigrecordingbuffer[i] = receivedbyte;
+             // feed the watchdog in ESP8266
+             ESP.wdtFeed();  
            }
         Serial.print(F("\r\nRecording RAW data complete.\r\n\r\n"));
         // setting normal pkt format again
@@ -1093,6 +1096,9 @@ void loop() {
   // index for serial port characters
   int i = 0;
 
+   // feed the watchdog in ESP8266
+    ESP.wdtFeed(); 
+    
     /* Process incoming commands. */
     while (Serial.available()) {
         static char buffer[BUF_LENGTH];
