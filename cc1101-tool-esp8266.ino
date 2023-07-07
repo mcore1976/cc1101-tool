@@ -1078,9 +1078,13 @@ void setup() {
       } else {
       Serial.println(F("cc1101 connection error! check the wiring.\n\r"));
       };
-
+    
       // setup variables
      bigrecordingbufferpos = 0;
+
+    // disable temporarly software watchdog in ESP8266 chip
+     ESP.wdtDisable();
+    
 }
 
 
