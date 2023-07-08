@@ -1120,9 +1120,6 @@ void loop() {
    // feed the watchdog in ESP8266
    ESP.wdtFeed(); 
 
-   // give control for other procedures in ESP8266
-   yield(); 
-    
     /* Process incoming commands. */
     while (Serial.available()) {
         static char buffer[BUF_LENGTH];
@@ -1296,7 +1293,10 @@ void loop() {
         ELECHOUSE_cc1101.SendData(ccsendingbuffer,60);
         // feed the watchdog
         ESP.wdtFeed();
-
       };
+
+   // give control for other procedures in ESP8266
+   yield(); 
+ 
  
 }  // end of main LOOP
