@@ -270,6 +270,9 @@ Change log :
 - added ESP32-WROOM version ( I have tested it succesfully with my own board )
 - added ESP8266 - WEMOS D1 Mini version
 
+08.07.2023
+- corrected ESP8266 version, WDT watchdog restarts solved. Code was successfuly tested on WEMOS D1 MINI clone and D-SUN CC1101 board. I can recommend WEMOS D1 MINI because of biggest size of FLASH simulated EEPROM for RF sequences storage.
+  
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
