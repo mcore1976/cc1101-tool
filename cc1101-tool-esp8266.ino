@@ -1133,12 +1133,21 @@ void loop() {
             // something was received over serial port put it into radio sending buffer
             while (Serial.available() and (i<(CCBUFFERSIZE-1)) ) 
              {
+              // feed the watchdog
+              ESP.wdtFeed();
+
               // read single character from Serial port         
               ccsendingbuffer[i] = Serial.read();
 
+              // feed the watchdog
+              ESP.wdtFeed();
+
               // also put it as ECHO back to serial port
               Serial.write(ccsendingbuffer[i]);
-               
+
+              // feed the watchdog
+              ESP.wdtFeed();
+
               // if CR was received add also LF character and display it on Serial port
               if (ccsendingbuffer[i] == 0x0d )
                   {  
@@ -1147,6 +1156,8 @@ void loop() {
                     ccsendingbuffer[i] = 0x0a;
                   }
               //
+              // feed the watchdog
+              ESP.wdtFeed();
               
               // increase CC1101 TX buffer position
               i++;   
@@ -1154,6 +1165,9 @@ void loop() {
 
             // put NULL at the end of CC transmission buffer
             ccsendingbuffer[i] = '\0';
+
+            // feed the watchdog
+            ESP.wdtFeed();
 
             // send these data to radio over CC1101
             ELECHOUSE_cc1101.SendData((char *)ccsendingbuffer);
@@ -1171,6 +1185,8 @@ void loop() {
             if (length) {
                 length--;
                 if (do_echo) Serial.write("\b \b");
+              // feed the watchdog
+              ESP.wdtFeed();
             }
         }
         else if (data == '\r' || data == '\n' ) {
@@ -1178,10 +1194,15 @@ void loop() {
             buffer[length] = '\0';
             if (length) exec(buffer);
             length = 0;
+            // feed the watchdog
+            ESP.wdtFeed();
+
         }
         else if (length < BUF_LENGTH - 1) {
             buffer[length++] = data;
             if (do_echo) Serial.write(data);
+            // feed the watchdog
+            ESP.wdtFeed();
         }
        };  
       // end of handling CLI processing
@@ -1197,6 +1218,9 @@ void loop() {
        //CRC Check. If "setCrc(false)" crc returns always OK!
        if (ELECHOUSE_cc1101.CheckCRC())
           { 
+            // feed the watchdog
+            ESP.wdtFeed();
+
             //Get received Data and calculate length
             int len = ELECHOUSE_cc1101.ReceiveData(ccreceivingbuffer);
 
@@ -1207,11 +1231,15 @@ void loop() {
                 ccreceivingbuffer[len] = '\0';
                 //Print received in char format.
                 Serial.print((char *) ccreceivingbuffer);
+                // feed the watchdog
+                ESP.wdtFeed();
                };  // end of handling Chat mode
 
             // Actions for RECEIVNG MODE
             if ( ((receivingmode == 1) && (recordingmode == 0))&& (len < CCBUFFERSIZE ) )
                {
+                   // feed the watchdog
+                   ESP.wdtFeed();
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
                    // flush textbuffer
@@ -1225,6 +1253,8 @@ void loop() {
                    Serial.print((char *)textbuffer);
                    // set RX  mode again
                    ELECHOUSE_cc1101.SetRx();
+                   // feed the watchdog
+                   ESP.wdtFeed();
                 };   // end of handling receiving mode 
 
             // Actions for RECORDING MODE               
@@ -1232,7 +1262,10 @@ void loop() {
                { 
                 // copy the frame from receiving buffer for replay - only if it fits
                 if (( bigrecordingbufferpos + len + 1) < RECORDINGBUFFERSIZE) 
-                     { // put info about number of bytes
+                     {
+                      // feed the watchdog
+                      ESP.wdtFeed();
+                      // put info about number of bytes
                       bigrecordingbuffer[bigrecordingbufferpos] = len; 
                       bigrecordingbufferpos++;
                       // next - copy current frame and increase 
@@ -1243,6 +1276,8 @@ void loop() {
                       framesinbigrecordingbuffer++;
                       // set RX  mode again
                       ELECHOUSE_cc1101.SetRx();
+                      // feed the watchdog
+                      ESP.wdtFeed();
                      }
                      
                 else {
@@ -1251,6 +1286,8 @@ void loop() {
                     Serial.print(F("\r\n"));
                     bigrecordingbufferpos = 0;
                     recordingmode = 0;
+                    // feed the watchdog
+                    ESP.wdtFeed();
                      };
                 
                };   // end of handling frame recording mode 
@@ -1269,6 +1306,9 @@ void loop() {
            { ccsendingbuffer[i] = (byte)random(255);  };        
         // send these data to radio over CC1101
         ELECHOUSE_cc1101.SendData(ccsendingbuffer,60);
+        // feed the watchdog
+        ESP.wdtFeed();
+
       };
  
 }  // end of main LOOP
