@@ -482,6 +482,9 @@ static void exec(char *cmdline)
         mark_rssi=-100;   
         while (!Serial.available())        
           {
+            // feed the watchdog
+            ESP.wdtFeed();
+
             ELECHOUSE_cc1101.setMHZ(freq);
             rssi = ELECHOUSE_cc1101.getRssi();
             if (rssi>-75)
@@ -644,8 +647,8 @@ static void exec(char *cmdline)
             
         // waiting for some data first or serial port signal
         // while (!Serial.available() ||  (digitalRead(gdo0) == LOW) ); 
-        // feed the watchdog while waiting for the signal    
-        while ( digitalRead(gdo0) == LOW )        ESP.wdtFeed(); 
+        // feed the watchdog while waiting for the RF signal    
+        while ( digitalRead(gdo0) == LOW )  ESP.wdtFeed(); 
             
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
@@ -703,12 +706,16 @@ static void exec(char *cmdline)
                     }; 
                     // store the output into recording buffer
                     bigrecordingbuffer[i] = receivedbyte;
+                    // feed the watchdog
+                    ESP.wdtFeed();
                 }; 
              // when buffer full print the ouptput to serial port
              for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
                     { 
                        asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                        Serial.print((char *)textbuffer);
+                       // feed the watchdog
+                       ESP.wdtFeed();
                     };
                     
             
@@ -748,6 +755,9 @@ static void exec(char *cmdline)
                  digitalWrite(gdo0, bitRead(receivedbyte, j)); // Set GDO0 according to recorded byte
                  delayMicroseconds(setting);                      // delay for selected sampling interval
                }; 
+              // feed the watchdog
+              ESP.wdtFeed();
+  
            }
 
         
@@ -768,7 +778,9 @@ static void exec(char *cmdline)
            { 
                     asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                     Serial.print((char *)textbuffer);
-           }
+                    // feed the watchdog
+                    ESP.wdtFeed();
+           };
        Serial.print(F("\r\n\r\n"));
 
 
@@ -852,7 +864,9 @@ static void exec(char *cmdline)
                               }; // end of switch
                               
                         }; // end of for
- 
+              // feed the watchdog
+              ESP.wdtFeed();
+   
               } // end of for
               Serial.print(F("\r\n\r\n"));
 
@@ -938,6 +952,9 @@ static void exec(char *cmdline)
                   if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
                  // 
                };
+               // feed the watchdog
+               ESP.wdtFeed();
+
              }; // end of IF framesinrecordingbuffer  
         
           // rewind buffer position
@@ -1009,6 +1026,8 @@ static void exec(char *cmdline)
                     // increase position to the buffer and check exception
                     bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
                     if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
+                    // feed the watchdog
+                    ESP.wdtFeed();
                  // 
                };
           // rewind buffer position
@@ -1085,8 +1104,8 @@ void setup() {
       // setup variables
      bigrecordingbufferpos = 0;
 
-    // disable temporarly software watchdog in ESP8266 chip
-     ESP.wdtDisable();
+     // disable temporarly software watchdog in ESP8266 chip
+     // ESP.wdtDisable();
     
 }
 
@@ -1138,6 +1157,9 @@ void loop() {
 
             // send these data to radio over CC1101
             ELECHOUSE_cc1101.SendData((char *)ccsendingbuffer);
+
+            // feed the watchdog
+            ESP.wdtFeed();
 
                 
        }
