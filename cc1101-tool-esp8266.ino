@@ -1104,9 +1104,11 @@ void setup() {
       // setup variables
      bigrecordingbufferpos = 0;
 
+     // Enable software watchdog in ESP8266 chip with 3 second fuse in case something goes wrong...
+     ESP.wdtEnable(3000);
+  
      // disable temporarly software watchdog in ESP8266 chip
-     // ESP.wdtDisable();
-    
+     // ESP.wdtDisable();    
 }
 
 
@@ -1139,9 +1141,6 @@ void loop() {
               // read single character from Serial port         
               ccsendingbuffer[i] = Serial.read();
 
-              // feed the watchdog
-              ESP.wdtFeed();
-
               // also put it as ECHO back to serial port
               Serial.write(ccsendingbuffer[i]);
 
@@ -1156,8 +1155,6 @@ void loop() {
                     ccsendingbuffer[i] = 0x0a;
                   }
               //
-              // feed the watchdog
-              ESP.wdtFeed();
               
               // increase CC1101 TX buffer position
               i++;   
@@ -1165,9 +1162,6 @@ void loop() {
 
             // put NULL at the end of CC transmission buffer
             ccsendingbuffer[i] = '\0';
-
-            // feed the watchdog
-            ESP.wdtFeed();
 
             // send these data to radio over CC1101
             ELECHOUSE_cc1101.SendData((char *)ccsendingbuffer);
@@ -1238,8 +1232,6 @@ void loop() {
             // Actions for RECEIVNG MODE
             if ( ((receivingmode == 1) && (recordingmode == 0))&& (len < CCBUFFERSIZE ) )
                {
-                   // feed the watchdog
-                   ESP.wdtFeed();
                    // put NULL at the end of char buffer
                    ccreceivingbuffer[len] = '\0';
                    // flush textbuffer
@@ -1263,8 +1255,6 @@ void loop() {
                 // copy the frame from receiving buffer for replay - only if it fits
                 if (( bigrecordingbufferpos + len + 1) < RECORDINGBUFFERSIZE) 
                      {
-                      // feed the watchdog
-                      ESP.wdtFeed();
                       // put info about number of bytes
                       bigrecordingbuffer[bigrecordingbufferpos] = len; 
                       bigrecordingbufferpos++;
