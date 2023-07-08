@@ -1118,12 +1118,16 @@ void loop() {
   int i = 0;
 
    // feed the watchdog in ESP8266
-    ESP.wdtFeed(); 
+   ESP.wdtFeed(); 
+
+   // give control for other procedures in ESP8266
+   yield(); 
     
     /* Process incoming commands. */
     while (Serial.available()) {
         static char buffer[BUF_LENGTH];
         static int length = 0;
+
 
     // handling CHAT MODE     
     if (chatmode == 1) 
@@ -1135,17 +1139,12 @@ void loop() {
             // something was received over serial port put it into radio sending buffer
             while (Serial.available() and (i<(CCBUFFERSIZE-1)) ) 
              {
-              // feed the watchdog
-              ESP.wdtFeed();
 
               // read single character from Serial port         
               ccsendingbuffer[i] = Serial.read();
 
               // also put it as ECHO back to serial port
               Serial.write(ccsendingbuffer[i]);
-
-              // feed the watchdog
-              ESP.wdtFeed();
 
               // if CR was received add also LF character and display it on Serial port
               if (ccsendingbuffer[i] == 0x0d )
@@ -1168,8 +1167,7 @@ void loop() {
 
             // feed the watchdog
             ESP.wdtFeed();
-
-                
+               
        }
     // handling CLI commands processing
     else
