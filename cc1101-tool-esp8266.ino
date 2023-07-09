@@ -637,6 +637,7 @@ static void exec(char *cmdline)
                  receivingmode = 0; };
         Serial.print(F("\r\n")); 
         yield();
+    
  
 
     // Handling TX command         
@@ -693,6 +694,9 @@ static void exec(char *cmdline)
         Serial.print(F("\r\nStarting RAW recording to the buffer...\r\n"));
         pinMode(gdo0, INPUT);
 
+        // temporarly disable WDT for the time of recording
+        // ESP.wdtDisable();
+        // start recording RF signal        
         for (int i=0; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = 0;
@@ -706,11 +710,18 @@ static void exec(char *cmdline)
              // feed the watchdog in ESP8266
              ESP.wdtFeed();  
            }
+        // enable WDT 
+        // ESP.wdtEnable(5000);
+        
         Serial.print(F("\r\nRecording RAW data complete.\r\n\r\n"));
         // setting normal pkt format again
         ELECHOUSE_cc1101.setCCMode(1); 
         ELECHOUSE_cc1101.setPktFormat(0);
         ELECHOUSE_cc1101.SetRx();
+        // feed the watchdog
+        ESP.wdtFeed();        
+        // needed for ESP8266   
+        yield();            
         }
         else { Serial.print(F("Wrong parameters.\r\n")); };
 
@@ -726,10 +737,10 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.SetRx();
         //start recording to the buffer with bitbanging of GDO0 pin state
         Serial.print(F("\r\nSniffer enabled...\r\n"));
-        pinMode(gdo0, INPUT);
+        pinMode(gdo0, INPUT);      
 
-        
-        
+        // temporarly disable WDT for the time of recording
+        // ESP.wdtDisable();       
        // Any received char over Serial port stops printing  RF received bytes
         while (!Serial.available()) 
            {  
@@ -747,18 +758,25 @@ static void exec(char *cmdline)
                     bigrecordingbuffer[i] = receivedbyte;
                     // feed the watchdog
                     ESP.wdtFeed();
-                }; 
+                  }; 
+             // enable WDT 
+             // ESP.wdtEnable(5000);        
+             // feed the watchdog
+             ESP.wdtFeed();        
+             // needed for ESP8266   
+             yield();      
+                  
              // when buffer full print the ouptput to serial port
              for (int i = 0; i < RECORDINGBUFFERSIZE ; i = i + 32)  
                     { 
                        asciitohex(&bigrecordingbuffer[i], textbuffer,  32);
                        Serial.print((char *)textbuffer);
                        // feed the watchdog
-                       // ESP.wdtFeed();
+                       ESP.wdtFeed();
+                       // needed foe ESP8266                    
+                       yield();
                     };
                     
-            // needed foe ESP8266                    
-            yield();
  
            }; // end of While loop
            
@@ -787,7 +805,9 @@ static void exec(char *cmdline)
         Serial.print(F("\r\nReplaying RAW data from the buffer...\r\n"));
         pinMode(gdo0, OUTPUT);
 
-        
+        // temporarly disable WDT for the time of recording
+        // ESP.wdtDisable();
+        // start RF replay
         for (int i=1; i<RECORDINGBUFFERSIZE ; i++)  
            { 
              byte receivedbyte = bigrecordingbuffer[i];
@@ -799,14 +819,19 @@ static void exec(char *cmdline)
               // feed the watchdog
               ESP.wdtFeed();
            };
-        // needed for ESP8266   
-        yield();      
+        // Enable WDT 
+        // ESP.wdtEnable(5000);
+           
         Serial.print(F("\r\nReplaying RAW data complete.\r\n\r\n"));
         // setting normal pkt format again
         ELECHOUSE_cc1101.setCCMode(1); 
         ELECHOUSE_cc1101.setPktFormat(0);
         ELECHOUSE_cc1101.SetTx();
         // pinMode(gdo0pin, INPUT);
+        // feed the watchdog
+        ESP.wdtFeed();        
+        // needed for ESP8266   
+        yield();      
         }
         else { Serial.print(F("Wrong parameters.\r\n")); };
 
@@ -824,6 +849,8 @@ static void exec(char *cmdline)
                     yield();                      
            };
        Serial.print(F("\r\n\r\n"));
+       // feed the watchdog
+       ESP.wdtFeed();
        // needed for ESP8266   
        yield();      
       
@@ -1360,10 +1387,14 @@ void loop() {
       { 
         // populate cc1101 sending buffer with random values
         randomSeed(analogRead(0));
+        
         for (i = 0; i<60; i++)
-           { ccsendingbuffer[i] = (byte)random(255);  };        
-        // needed for ESP8266   
-        yield();                 
+           { ccsendingbuffer[i] = (byte)random(255); 
+             // feed the watchdog
+             ESP.wdtFeed();
+             // needed for ESP8266   
+             yield();                   
+           };        
         // send these data to radio over CC1101
         ELECHOUSE_cc1101.SendData(ccsendingbuffer,60);
         // feed the watchdog
