@@ -160,19 +160,19 @@ Example for XIAO ESP32 C3
 
 #define EPROMSIZE 512              // Size of EEPROM in your Arduino chip. For ESP32 it is Flash simulated 512 bytes only
 
-// defining PINs set for ESP32 module
+// defining PINs set for XIAO ESP32 C3
 
-byte sck = 8;
+byte sck = 8;   // GPIO 8 
 
-byte miso = 4;
+byte miso = 4;  // GPIO 4
 
-byte mosi = 10;
+byte mosi = 10; // GPIO 10
 
-byte ss = 20;
+byte ss = 20;   // GPIO 20
 
-int gdo0 = 21;
+int gdo0 = 21;  // GPIO 21
 
-int gdo2 = 7;
+int gdo2 = 7;   // GPIO 7
 
 ----
 
