@@ -154,7 +154,7 @@ int gdo2 = 4;     // GPIO 4
 
 ----
 
-Example for XIAO ESP32 C3 - ATTENTION ! This board requires PULL DOWN resistor on port connected to GDO0 pin ( GPIO 21 / pin 7 ) otherwise it gets errors while playing with RXRAR, RECRAW commands
+Example for XIAO ESP32 C3 - ATTENTION ! This board requires PULL DOWN resistors on pins connected to CC1101 board.
 
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
 
