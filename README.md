@@ -154,7 +154,7 @@ int gdo2 = 4;     // GPIO 4
 
 ----
 
-Example for XIAO ESP32 C3 - ATTENTION ! This board requires PULL DOWN resistors on pins connected to CC1101 board.
+Example for XIAO ESP32 C3 - ATTENTION ! This board may require PULL DOWN resistor on pin connected to GDO0 pin on CC1101 board. It catches "FF" in RXRAW/RECRAW which indicates there is permanent PULLUP mode. 
 
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
 
