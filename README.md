@@ -272,7 +272,10 @@ Change log :
 
 08.07.2023
 - corrected ESP8266 version, WDT watchdog restarts MOSTLY solved (this single core chip is heavy loaded with internal WiFI procedures and TCP IP stack). Code was successfuly tested on WEMOS D1 MINI clone and D-SUN CC1101 board. The advantage of using WEMOS D1 MINI  biggest size of FLASH simulated EEPROM for RF sequences storage.  ESP32 chips are dual core and my code runs better. 
-  
+
+13.07.2023
+- changed default data rate for Packet Mode from 1.2Kbaud to 9.6Kbaud which removes problems with Watchdog Restart on ESP8266 board and improves stability
+
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
     
