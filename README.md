@@ -222,6 +222,7 @@ int gdo2 = 5;  // D2
 
 --------------------------------------------------------------------------------------
 First version of this project was presented in this video : https://youtu.be/iPVckkTjsd0
+Using Universal Radio Hacker and my CC1101-tool is presented in following video : https://youtu.be/mdkEK_wmWJA
 --------------------------------------------------------------------------------------
 
 
