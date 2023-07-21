@@ -1024,6 +1024,10 @@ static void exec(char *cmdline)
                     memcpy(ccsendingbuffer, &bigrecordingbuffer[bigrecordingbufferpos + 1], len );      
                     // send these data to radio over CC1101
                     ELECHOUSE_cc1101.SendData(ccsendingbuffer, (byte)len);
+                    // feed the watchdog
+                    ESP.wdtFeed();
+                    // needed for ESP8266   
+                    yield();                      
                  };
                   // increase position to the buffer and check exception
                   bigrecordingbufferpos = bigrecordingbufferpos + 1 + len;
@@ -1075,8 +1079,10 @@ static void exec(char *cmdline)
                    };
         }  
         else { Serial.print(F("Wrong parameters.\r\n")); };
+        // feed the watchdog
+        ESP.wdtFeed();
         // needed for ESP8266   
-        yield();      
+        yield();    
        
 
     // Handling SHOW command         
@@ -1109,15 +1115,19 @@ static void exec(char *cmdline)
                     if ( bigrecordingbufferpos > RECORDINGBUFFERSIZE) break;
                     // feed the watchdog
                     ESP.wdtFeed();
-                 // 
+                    // needed for ESP8266   
+                    yield(); 
+                    // 
                };
           // rewind buffer position
           // bigrecordingbufferpos = 0;
           Serial.print(F("\r\n")); 
         }
          else { Serial.print(F("Wrong parameters.\r\n")); };
+        // feed the watchdog
+        ESP.wdtFeed();
         // needed for ESP8266   
-        yield();      
+        yield();     
 
 
     // Handling FLUSH command         
@@ -1128,8 +1138,10 @@ static void exec(char *cmdline)
         bigrecordingbufferpos = 0;
         framesinbigrecordingbuffer = 0;
         Serial.print(F("\r\nRecording buffer cleared.\r\n"));
+        // feed the watchdog
+        ESP.wdtFeed();
         // needed for ESP8266   
-        yield();      
+        yield();       
           
        
     // Handling ECHO command         
@@ -1143,6 +1155,8 @@ static void exec(char *cmdline)
         jammingmode = 0;
         recordingmode = 0;
         Serial.print(F("\r\n"));
+        // feed the watchdog
+        ESP.wdtFeed();
         // needed for ESP8266   
         yield();      
 
@@ -1153,12 +1167,17 @@ static void exec(char *cmdline)
         cc1101initialize();
         // give feedback
         Serial.print(F("CC1101 initialized\r\n"));
-          
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266   
+        yield();           
     } else {
         Serial.print(F("Error: Unknown command: "));
         Serial.println(command);
+        // feed the watchdog
+        ESP.wdtFeed();
         // needed for ESP8266   
-        yield();      
+        yield();         
         //  debug only
         // asciitohex(command, (byte *)textbuffer,  strlen(command));
         // Serial.print(F("\r\n"));
@@ -1183,6 +1202,10 @@ void setup() {
     
      // initialize CC1101 module with preffered parameters
      cc1101initialize();
+     // feed the watchdog
+     ESP.wdtFeed();
+     // needed for ESP8266   
+     yield();     
 
       if (ELECHOUSE_cc1101.getCC1101()) {  // Check the CC1101 Spi connection.
       Serial.println(F("cc1101 initialized. Connection OK\n\r"));
