@@ -218,6 +218,24 @@ int gdo0 = 9;  // D6
 
 int gdo2 = 5;  // D2
 
+----
+
+Example for Raspbery Pi Pico / RP2040 board - ATTENTION ! I HAVE TESTED THIS BOARD AND IT USES 3.3V LOGIC 
+
+#define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
+
+#define EPROMSIZE 512             // Size of EEPROM in your Arduino chip. 
+
+// defining PINs for Raspbery Pi Pico 
+// see pinout:  https://cdn-learn.adafruit.com/assets/assets/000/099/339/original/raspberry_pi_Pico-R3-Pinout-narrow.png
+
+byte sck = 2;   
+byte miso = 4;
+byte mosi = 3;
+byte ss = 5;
+int gdo0 = 7;
+int gdo2 = 6;
+
 
 
 --------------------------------------------------------------------------------------
@@ -229,6 +247,8 @@ Using Universal Radio Hacker and my CC1101-tool is presented in following video 
 
 Change log :
 
+27.07.2023:
+- rp2040 board added
 
 
 08.06.2023 : optimized CLI 
