@@ -220,13 +220,13 @@ int gdo2 = 5;  // D2
 
 ----
 
-Example for Raspbery Pi Pico / RP2040 board - ATTENTION ! I HAVE TESTED THIS BOARD AND IT USES 3.3V LOGIC 
+Example for Raspberry Pi Pico / RP2040 board - ATTENTION ! I HAVE TESTED THIS BOARD AND IT USES 3.3V LOGIC 
 
 #define RECORDINGBUFFERSIZE 4096   // Buffer for recording the frames
 
 #define EPROMSIZE 512             // Size of EEPROM in your Arduino chip. 
 
-// defining PINs for Raspbery Pi Pico 
+// defining PINs for Raspberry Pi Pico 
 // see pinout:  https://cdn-learn.adafruit.com/assets/assets/000/099/339/original/raspberry_pi_Pico-R3-Pinout-narrow.png
 
 byte sck = 2;   
