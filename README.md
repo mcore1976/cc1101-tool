@@ -229,11 +229,16 @@ Example for Raspberry Pi Pico / RP2040 board - ATTENTION ! I HAVE TESTED THIS BO
 // defining PINs for Raspberry Pi Pico 
 // see pinout:  https://cdn-learn.adafruit.com/assets/assets/000/099/339/original/raspberry_pi_Pico-R3-Pinout-narrow.png
 
-byte sck = 2;   
+byte sck = 2;  
+
 byte miso = 4;
+
 byte mosi = 3;
+
 byte ss = 5;
+
 int gdo0 = 7;
+
 int gdo2 = 6;
 
 
@@ -244,12 +249,7 @@ Using Universal Radio Hacker and my CC1101-tool is presented in following video 
 --------------------------------------------------------------------------------------
 
 
-
 Change log :
-
-27.07.2023:
-- rp2040 board added
-
 
 08.06.2023 : optimized CLI 
 - removed unnecessary parameters for commands RX, TX, JAM. 
@@ -296,6 +296,10 @@ Change log :
 
 13.07.2023
 - changed default data rate for Packet Mode from 1.2Kbaud to 9.6Kbaud which removes problems with Watchdog Restart on ESP8266 board and improves stability
+
+27.07.2023:
+- rp2040 board added
+
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
