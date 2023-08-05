@@ -227,6 +227,7 @@ Example for Raspberry Pi Pico / RP2040 board - ATTENTION ! I HAVE TESTED THIS BO
 #define EPROMSIZE 512             // Size of EEPROM in your Arduino chip. 
 
 // defining PINs for Raspberry Pi Pico 
+
 // see pinout:  https://cdn-learn.adafruit.com/assets/assets/000/099/339/original/raspberry_pi_Pico-R3-Pinout-narrow.png
 
 byte sck = 2;  
