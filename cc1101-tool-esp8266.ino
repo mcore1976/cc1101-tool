@@ -661,21 +661,24 @@ static void exec(char *cmdline)
         //start playing RF with setting GDO0 bit state with bitbanging
         Serial.print(F("\r\nStarting Brute Forcing press any key to stop...\r\n"));
         pinMode(gdo0, OUTPUT);
-     
+
         for (brute = 0; brute < poweroftwo ; brute++)  
            { 
+           for(int k = 0; k <  5; k++)  // sending 5 times each code
+             {
              for(int j = setting2; j > -1; j--)  // j bits in a value brute
                {
                  digitalWrite(gdo0, bitRead(brute, j)); // Set GDO0 according to actual brute force value
                  delayMicroseconds(setting);            // delay for selected sampling interval
-               }; 
+               }; // end of J loop
+               // watchdog
+               yield(); 
+               // feed the watchdog in ESP8266
+               ESP.wdtFeed();                    
+             };  // end of K loop
              // checking if key pressed
              if (Serial.available()) break;
-             // watchdog
-             yield(); 
-             // feed the watchdog in ESP8266
-             ESP.wdtFeed();                
-           };
+           };           
 
         Serial.print(F("\r\nBrute forcing complete.\r\n\r\n"));
         
