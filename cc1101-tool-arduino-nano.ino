@@ -530,14 +530,18 @@ static void exec(char *cmdline)
      
         for (brute = 0; brute < poweroftwo ; brute++)  
            { 
+           for(int k = 0; k <  5; k++)  // sending 5 times each code
+             {
              for(int j = setting2; j > -1; j--)  // j bits in a value brute
                {
                  digitalWrite(gdo0, bitRead(brute, j)); // Set GDO0 according to actual brute force value
                  delayMicroseconds(setting);            // delay for selected sampling interval
-               }; 
+               }; // end of J loop
+             };  // end of K loop
              // checking if key pressed
              if (Serial.available()) break;
            };
+
 
         Serial.print(F("\r\nBrute forcing complete.\r\n\r\n"));
         
