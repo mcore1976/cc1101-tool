@@ -64,8 +64,10 @@ Following commands are available :
     tx  <hex-vals>               // Send the packet of max 60 bytes < hex values > hex values over RF 
 
     jam                          // Enable or disable continous jamming on selected band with selected modulation etc... 
-    
-    rec                         // Enable or disable recording frames in the buffer.
+
+    brute <usec> <nb-of-bits>    // Brute force garage gate with <number-of-bits> keyword where symbol length is <microseconds>
+
+    rec                          // Enable or disable recording frames in the buffer.
     
     show                         // Show content of recording buffer
     
@@ -300,6 +302,9 @@ Change log :
 
 27.07.2023:
 - rp2040 board added
+
+18.08.2023:
+- added command BRUTE <microseconds> <number of bits> for brute force attack on some DIP switches based garage gates. Sometimes the code hangs after executing full brute force cycle. Trying to find the root cause... Another bad news is that I have reached full FLASH capacity of ATMEGA32U4 so no more extensions are possible to the code for this chip. 
 
 
   
