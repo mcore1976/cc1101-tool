@@ -308,11 +308,18 @@ Change log :
 
 02.09.2023
 - WIFI access to ESP8266 board added - there is a separate source code version. Before uploading the code you need to assign an IP address to the module , put correct default gateway as well as configure SSID of yout router and the WIFI password in the code like blow. The ESP8266 board connects to your WIFI router/access point and you do a TELNET to its IP address :
+  
         IPAddress ip(192, 168, 0, 200);           // Local Static IP address for ESP8266 board
+  
         IPAddress gateway(192, 168, 0, 1);        // Gateway IP address
+  
         IPAddress subnet(255, 255, 255, 0);       // Subnet Mask
+  
         const char ssid[] = "YOUR-WIFI-ROUTER-SSID";         // Change to your Router SSID
+  
         const char password[] = "YOUR-WIFI-PASSWORD";        // Change to your Router Password
+  
+
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
