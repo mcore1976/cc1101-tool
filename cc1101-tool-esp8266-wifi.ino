@@ -38,11 +38,11 @@ int gdo2 = 4;     // GPIO 4
 #define LED_BUILTIN 2
 #define TCP_PORT (23)                       // Choose any port you want
 WiFiServer tcpserver(TCP_PORT);
-IPAddress ip(192, 168, 1, 200);             // Local Static IP address
-IPAddress gateway(192, 168, 1, 254);        // Gateway IP address
-IPAddress subnet(255, 255, 255, 0);         // Subnet Mask
-const char ssid[] = "your-wifi-SSID";                // Change to your Router SSID
-const char password[] = "your-wifi-PASSWORD";        // Change to your Router Password
+IPAddress ip(192, 168, 1, 200);                           // Local Static IP address that you will telnet to
+IPAddress gateway(192, 168, 1, 254);                      // Gateway IP address of your WIFI router
+IPAddress subnet(255, 255, 255, 0);                       // Subnet Mask
+const char ssid[] = "your-WIFI-SSID-here";                // Change to your Router SSID
+const char password[] = "your-WIFI-PASSWORD-here";        // Change to your Router Password
 WiFiClient tcpclient ;                      // class for handling incoming telnet connection
 
 
@@ -651,7 +651,15 @@ static void exec(char *cmdline)
 
     // Handling CHAT command         
        } else if (strcmp_P(command, PSTR("chat")) == 0) {
+
+       // feed the watchdog
+       ESP.wdtFeed();
+       // needed for ESP8266   
+       yield(); 
+       delay(200);
+           
         tcpclient.write("\r\nEntering chat mode:\r\n\r\n");
+        //
         if (chatmode == 0) 
            { 
              chatmode = 1;
@@ -659,10 +667,7 @@ static void exec(char *cmdline)
              receivingmode = 0;
              recordingmode = 0;
            };
-           // feed the watchdog
-            ESP.wdtFeed();
-            // needed for ESP8266   
-            yield();     
+    
 
     // Handling JAM command         
        } else if (strcmp_P(command, PSTR("jam")) == 0) {
@@ -1275,6 +1280,10 @@ static void exec(char *cmdline)
 
 void setup() {
 
+    // for debugging only
+    // Serial.begin(115200);
+    // Serial.println();
+
     // initializing WIFI
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); // Turn the LED on
@@ -1348,7 +1357,6 @@ void loop() {
 
    // bind to wifi client
    tcpclient = tcpserver.available();
-
    
     // check if WIFI initialized and there is tcpclient connected over WIFI
     if (tcpclient)
@@ -1356,13 +1364,13 @@ void loop() {
      // process incoming characters from WIFI
     while(tcpclient.connected()){      
         // read data from the connected tcpclient
-    {
-
+      {
+        // read if there is any character received from telnet
+        int data = tcpclient.read();
 
     // handling CHAT MODE     
-    if (chatmode == 1) 
+    if ( (chatmode == 1) and (data>0) ) 
        { 
-            int data = tcpclient.read();
             // clear serial port buffer index
             i = 0;
 
@@ -1377,7 +1385,7 @@ void loop() {
               // read single character from TCP stream         
               ccsendingbuffer[i] = data;
 
-              // also put it as ECHO back to serial port
+              // also put it as ECHO back 
               tcpclient.write(ccsendingbuffer[i]);
 
               // if CR was received add also LF character and display it on Serial port
@@ -1398,12 +1406,14 @@ void loop() {
             // put NULL at the end of CC transmission buffer
             ccsendingbuffer[i] = '\0';
 
+
             // blink ESP8266 led - turn it on
             digitalWrite(LED_BUILTIN, HIGH);         
             // send these data to radio over CC1101
             ELECHOUSE_cc1101.SendData((char *)ccsendingbuffer);
            // blink ESP8266 led - turn it off
             digitalWrite(LED_BUILTIN, LOW);
+            
             
             // feed the watchdog
             ESP.wdtFeed();
@@ -1415,13 +1425,15 @@ void loop() {
     // handling CLI commands processing
     else
       {   
-        int data = tcpclient.read();
+        // int data = tcpclient.read();
         if (data == '\b' || data == '\177') {  // BS and DEL
             if (length) {
                 length--;
                 if (do_echo) tcpclient.write("\b \b");
-              // feed the watchdog
-              ESP.wdtFeed();
+                // feed the watchdog
+                ESP.wdtFeed();
+                // needed for ESP8266   
+                yield();              
             }
         }
         else if (data == '\r' || data == '\n' ) {
@@ -1433,6 +1445,8 @@ void loop() {
             length = 0;
             // feed the watchdog
             ESP.wdtFeed();
+            // needed for ESP8266   
+            yield();            
         }
 
         else if ( (data > 0) && (length < BUF_LENGTH - 1) ) {
@@ -1440,6 +1454,8 @@ void loop() {
             if (do_echo) tcpclient.write(data);
             // feed the watchdog
             ESP.wdtFeed();
+            // needed for ESP8266   
+            yield();            
         }
         
        };  
