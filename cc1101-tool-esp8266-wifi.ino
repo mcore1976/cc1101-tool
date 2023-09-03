@@ -265,7 +265,7 @@ static void exec(char *cmdline)
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setMHZ(settingf1);
         tcpclient.write("\r\nFrequency: ");
-        dtostrf(settingf1, 6,1 , destination);         
+        dtostrf(settingf1, 6,2 , destination);         
         tcpclient.write(destination);
         tcpclient.write(" MHz\r\n");
         yield();
@@ -275,7 +275,7 @@ static void exec(char *cmdline)
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setDeviation(settingf1);
         tcpclient.write("\r\nDeviation: ");
-        dtostrf(settingf2, 6,1 , destination);         
+        dtostrf(settingf1, 6,2 , destination);         
         tcpclient.write(destination);
         tcpclient.write(" KHz\r\n");        
         yield();
@@ -295,7 +295,7 @@ static void exec(char *cmdline)
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setChsp(settingf1);
         tcpclient.write("\r\nChann spacing: ");
-        dtostrf(settingf1, 6,1 , destination);         
+        dtostrf(settingf1, 6,2 , destination);         
         tcpclient.write(destination);
         tcpclient.write(" kHz\r\n");  
         yield();
@@ -305,7 +305,7 @@ static void exec(char *cmdline)
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setRxBW(settingf1);
         tcpclient.write("\r\nRX bandwidth: ");
-        dtostrf(settingf1, 6,1 , destination);         
+        dtostrf(settingf1, 6,2 , destination);         
         tcpclient.write(destination);
         tcpclient.write(" kHz \r\n");  
         yield();
@@ -315,7 +315,7 @@ static void exec(char *cmdline)
         settingf1 = atof(cmdline);
         ELECHOUSE_cc1101.setDRate(settingf1);
         tcpclient.write("\r\nDatarate: ");
-        dtostrf(settingf1, 6,1 , destination);         
+        dtostrf(settingf1, 6,2 , destination);         
         tcpclient.write(destination);
         tcpclient.write(" kbaud\r\n");  
         yield();
@@ -529,10 +529,10 @@ static void exec(char *cmdline)
         settingf2 = atoi(cmdline);
         tcpclient.write("\r\nScanning frequency range from : ");
         // dtostrf(floatValue, minStringWidth, numAfterDecimal, charBuf_to_store_string);                            
-        dtostrf(settingf1, 6,1 , destination);          
+        dtostrf(settingf1, 6,2 , destination);          
         tcpclient.write(destination);
         tcpclient.write(" MHz to ");
-        dtostrf(settingf2, 6,1 , destination);          
+        dtostrf(settingf2, 6,2 , destination);          
         tcpclient.write(destination);
         tcpclient.write(" MHz, press any key for stop or wait...\r\n");  
         // initialize parameters for scanning
@@ -574,7 +574,7 @@ static void exec(char *cmdline)
                             tcpclient.write("\r\nSignal found at  ");
                             tcpclient.write("Freq: ");
                             // dtostrf(floatValue, minStringWidth, numAfterDecimal, charBuf_to_store_string);                            
-                            dtostrf(mark_freq, 6,1 , destination);                            
+                            dtostrf(mark_freq, 6,2 , destination);                            
                             tcpclient.write(destination);                          
                             tcpclient.write(" Rssi: "); 
                             itoa(mark_rssi,destination,10);
