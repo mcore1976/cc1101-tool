@@ -34,16 +34,16 @@ byte ss = 15;      // GPIO 15
 int gdo0 = 5;     // GPIO 5
 int gdo2 = 4;     // GPIO 4
 
-// You need to attach ESP8266 board to your own WIFI router
+// You need to attach ESP8266 board to your own WIFI router (f.ex. Android tethering)
 #define LED_BUILTIN 2
-#define TCP_PORT (23)                       // Choose any port you want
-WiFiServer tcpserver(TCP_PORT);
-IPAddress ip(192, 168, 1, 200);                           // Local Static IP address that you will telnet to
-IPAddress gateway(192, 168, 1, 254);                      // Gateway IP address of your WIFI router
-IPAddress subnet(255, 255, 255, 0);                       // Subnet Mask
-const char ssid[] = "your-WIFI-SSID-here";                // Change to your Router SSID
-const char password[] = "your-WIFI-PASSWORD-here";        // Change to your Router Password
-WiFiClient tcpclient ;                      // class for handling incoming telnet connection
+#define TCP_PORT (23)                      // Choose any port you want
+WiFiServer tcpserver(TCP_PORT);            // class for running Telnet server
+IPAddress ip(192, 168, 43, 100);           // Local Static IP address
+IPAddress gateway(192, 168, 43, 1);        // Gateway IP address
+IPAddress subnet(255, 255, 255, 0);        // Subnet Mask
+const char ssid[] = "AndroidAP";           // Change to your Router SSID
+const char password[] = "password";        // Change to your Router Password
+WiFiClient tcpclient ;                     // class for handling incoming telnet connection
 
 
 // position in big recording buffer
