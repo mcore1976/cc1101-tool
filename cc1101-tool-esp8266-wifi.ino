@@ -710,7 +710,7 @@ static void exec(char *cmdline)
            { 
              // blink ESP8266 led - turn it on
              digitalWrite(LED_BUILTIN, HIGH);
-             for(int j = setting2; j > -1; j--)  // j bits in a value brute
+             for(int j = setting2; j > 0; j--)  // j bits in a value brute
                {
                  digitalWrite(gdo0, bitRead(brute, j)); // Set GDO0 according to actual brute force value
                  delayMicroseconds(setting);            // delay for selected sampling interval
