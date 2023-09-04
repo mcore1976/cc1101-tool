@@ -307,7 +307,7 @@ Change log :
 - added command BRUTE <microseconds> <number of bits> for brute force attack on some DIP switches based garage gates. Sometimes the code hangs after executing full brute force cycle. Trying to find the root cause... Another bad news is that I have reached full FLASH capacity of ATMEGA32U4 so no more extensions are possible to the code for this chip. 
 
 02.09.2023
-- WIFI access to ESP8266 board added - there is a separate source code version. Before uploading the code you need to assign an IP address to the module , put correct default gateway as well as configure SSID of yout router and the WIFI password in the code like blow. The ESP8266 board connects to your WIFI router/access point (you need 2nd mobile phone which will serve as an accesspoint for your own phone and ESP8266 board) and you do a TELNET to its IP address 192.168.43.100 :
+- WIFI access to ESP8266 board added - there is a separate source code version. Before uploading the code you need to assign an IP address to the module , put correct default gateway as well as configure SSID of your WIFI router and the WIFI password in the code like below (defaults are for Android tethering access point). The ESP8266 board connects to your WIFI router/access point (you need 2nd mobile phone which will serve as an accesspoint for your own phone and ESP8266 board) and you do a TELNET to its IP address 192.168.43.100 from the other smartphone :
   
     IPAddress ip(192, 168, 43, 100);           // Local Static IP address
 
