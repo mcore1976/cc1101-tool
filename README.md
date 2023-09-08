@@ -319,8 +319,11 @@ Change log :
 
     const char password[] = "password";      // Change to your Router Password
   
-Scenario for WIFI / telnet connection :
+Scenario for WIFI / telnet connection when ESP8266 is WIFI client :
    ESP8266 + CC1101 WIFI client at 192.168.43.100 --> Smartphone #1 wifi tethering / wifi access point at 192.168.43.1  <-- Smartphone #2 WIFI client / Connectbot - telnet to 192.168.43.100
+
+02.09.2023
+- WIFI Access Point mode to ESP8266 board added - there is a separate source code version. Before uploading the code you can change an IP address to the module and  SSID for your ESP8266 board. Default is SSID "cc1101" and IP address for telent "192.168.1.100"
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
