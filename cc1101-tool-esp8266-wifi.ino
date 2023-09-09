@@ -13,7 +13,9 @@
 // Also uses Arduino Command Line interpreter by Edgar Bonet
 // from https://gist.github.com/edgar-bonet/607b387260388be77e96
 //
-// This code will ONLY work with ESP8266 board, WIFI version
+// This code will ONLY work with ESP8266 board, 
+// WIFI client in ESP8266 version
+// External Access  Point is needed
 //
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
