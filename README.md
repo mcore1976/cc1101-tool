@@ -307,7 +307,8 @@ Change log :
 - added command BRUTE <microseconds> <number of bits> for brute force attack on some DIP switches based garage gates. Sometimes the code hangs after executing full brute force cycle. Trying to find the root cause... Another bad news is that I have reached full FLASH capacity of ATMEGA32U4 so no more extensions are possible to the code for this chip. 
 
 02.09.2023
-- WIFI access to ESP8266 board added - there is a separate source code version. Before uploading the code you need to assign an IP address to the module , put correct default gateway as well as configure SSID of your WIFI router and the WIFI password in the code like below (defaults are for Android tethering access point). The ESP8266 board connects to your WIFI router/access point (you need 2nd mobile phone which will serve as an accesspoint for your own phone and ESP8266 board) and you do a TELNET to its IP address 192.168.43.100 from the other smartphone :
+- WIFI client mode for ESP8266 board added - there is a separate source code version wifi in the name. Before uploading the code you need to assign an IP address to the module , put correct default gateway as well as configure SSID of your WIFI router and the WIFI password in the code like below (defaults are for Android tethering access point). Wifi client mode can be used to extend widely the range between CC1101 device and you PC/smartphone which is used to control this board.  Beetween them you have external Access Point that will be "man in the middle" to extend the WIFI range...
+- The ESP8266 board connects to your WIFI router/access point (you need 2nd mobile phone which will serve as an accesspoint for your own phone and ESP8266 board) and you do a TELNET to its IP address 192.168.43.100 from the other smartphone :
   
     IPAddress ip(192, 168, 43, 100);           // Local Static IP address
 
@@ -319,11 +320,12 @@ Change log :
 
     const char password[] = "password";      // Change to your Router Password
   
-Scenario for WIFI / telnet connection when ESP8266 is WIFI client :
-   ESP8266 + CC1101 WIFI client at 192.168.43.100 --> Smartphone #1 wifi tethering / wifi access point at 192.168.43.1  <-- Smartphone #2 WIFI client / Connectbot - telnet to 192.168.43.100
+Example scenario for WIFI / telnet connection when ESP8266 is WIFI client :
+   ESP8266 + CC1101 WIFI client at 192.168.43.100   <->   Smartphone #1 wifi tethering / wifi access point at 192.168.43.1    <->  Smartphone #2 WIFI client / Connectbot - telnet to 192.168.43.100
+   
 
-02.09.2023
-- WIFI Access Point mode to ESP8266 board added - there is a separate source code version. Before uploading the code you can change an IP address to the module and  SSID for your ESP8266 board. Default is SSID "cc1101" and IP address for telnet "192.168.1.100"
+08.09.2023
+- WIFI Access Point mode to ESP8266 board added - there is a separate source code version with wifi-ap in the name. Before uploading the code you can change an IP address to the module and  SSID for your ESP8266 board. Default is SSID "cc1101" and IP address for telnet "192.168.1.100". This is the simplest scenario, use Connectbot and Telnet protocol to connect to CC1101 board over TCP port 23.
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
