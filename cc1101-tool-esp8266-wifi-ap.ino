@@ -34,18 +34,17 @@ byte ss = 15;      // GPIO 15
 int gdo0 = 5;     // GPIO 5
 int gdo2 = 4;     // GPIO 4
 
-// You need to attach ESP8266 board to your own WIFI router
+// defining TELNET parameters for TCP stream
 #define LED_BUILTIN 2
 #define TCP_PORT (23)                       // Choose any port you want
 WiFiServer tcpserver(TCP_PORT);
 WiFiClient tcpclient ;                      // class for handling incoming telnet connection
 
+// Your ESP8266 board will become WIFI ACCESS POINT with following parameters below
 IPAddress ip(192, 168, 1, 100);             // Local Static IP address
 IPAddress gateway(192, 168, 1, 1);        // Gateway IP address
 IPAddress subnet(255, 255, 255, 0);         // Subnet Mask
 const char ssid[] = "cc1101";              // Change to your ESP8266 AP SSID
-const char password[] = "cc1101";          // Change to your ESP8266 AP Password
-
 
 
 // position in big recording buffer
