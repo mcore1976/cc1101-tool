@@ -779,10 +779,15 @@ static void exec(char *cmdline)
         //start recording to the buffer with bitbanging of GDO0 pin state
         tcpclient.write("\r\nWaiting for radio signal to start RAW recording...\r\n");
         pinMode(gdo0, INPUT);
-
+            
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();   
+            
         // this is only for ESP32 boards because they are getting some noise on the beginning
         setting2 = digitalRead(gdo0);
-        delayMicroseconds(1000);  
+        delay(1);  
             
         // waiting for some data first
         // feed the watchdog while waiting for the RF signal    
@@ -812,6 +817,8 @@ static void exec(char *cmdline)
              bigrecordingbuffer[i] = receivedbyte;
              // feed the watchdog in ESP8266
              ESP.wdtFeed();  
+             // needed for ESP8266
+             yield();
            }
         // enable WDT 
         // ESP.wdtEnable(5000);
@@ -842,6 +849,11 @@ static void exec(char *cmdline)
         tcpclient.write("\r\nSniffer enabled...\r\n");
         pinMode(gdo0, INPUT);      
 
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();   
+            
         // temporarly disable WDT for the time of recording
         // ESP.wdtDisable();       
        // Any received char over Serial port stops printing  RF received bytes
@@ -861,6 +873,8 @@ static void exec(char *cmdline)
                     bigrecordingbuffer[i] = receivedbyte;
                     // feed the watchdog
                     ESP.wdtFeed();
+                    // nedded for ESP8266
+                    yield();
                   }; 
              // enable WDT 
              // ESP.wdtEnable(5000);        
@@ -910,6 +924,11 @@ static void exec(char *cmdline)
         tcpclient.write("\r\nReplaying RAW data from the buffer...\r\n");        
         pinMode(gdo0, OUTPUT);
 
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();               
+            
         // temporarly disable WDT for the time of recording
         // ESP.wdtDisable();
         // start RF replay
@@ -923,6 +942,8 @@ static void exec(char *cmdline)
                }; 
               // feed the watchdog
               ESP.wdtFeed();
+              // needed for ESP8266
+              yield();
            };
         // Enable WDT 
         // ESP.wdtEnable(5000);
@@ -1074,6 +1095,10 @@ static void exec(char *cmdline)
                    {   
                      tcpclient.write("\r\nBuffer is full. The frame does not fit.\r\n ");
                    };
+               // feed the watchdog
+               ESP.wdtFeed();
+               // needed for ESP8266
+               yield();   
         }  
         else { tcpclient.write("Wrong parameters.\r\n"); };
         // needed for ESP8266   
@@ -1269,7 +1294,11 @@ static void exec(char *cmdline)
         // give feedback
         tcpclient.write("CC1101 initialized\r\n");
         // blink ESP8266 led - turn it off
-         digitalWrite(LED_BUILTIN, LOW);          
+         digitalWrite(LED_BUILTIN, LOW); 
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();           
     } else {
         tcpclient.write("Error: Unknown command: ");
         tcpclient.write(command);
@@ -1338,6 +1367,7 @@ void setup() {
 
      // Enable software watchdog in ESP8266 chip with 3 second fuse in case something goes wrong...
      ESP.wdtEnable(5000);
+     yield();
   
      // disable temporarly software watchdog in ESP8266 chip
      // ESP.wdtDisable();   
@@ -1356,6 +1386,7 @@ void loop() {
 
    // feed the watchdog in ESP8266
    ESP.wdtFeed(); 
+   yield();
 
    // bind to wifi client
    tcpclient = tcpserver.available();
@@ -1488,7 +1519,7 @@ void loop() {
                 //Print received in char format.
                 tcpclient.write((char *) ccreceivingbuffer);
                 // feed the watchdog
-                // ESP.wdtFeed();
+                ESP.wdtFeed();
                 // needed for ESP8266   
                 yield();      
 
