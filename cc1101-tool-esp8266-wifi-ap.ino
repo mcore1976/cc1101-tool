@@ -908,6 +908,10 @@ static void exec(char *cmdline)
         //start replaying GDO0 bit state from data in the buffer with bitbanging 
         tcpclient.write("\r\nReplaying RAW data from the buffer...\r\n");        
         pinMode(gdo0, OUTPUT);
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();            
 
         // temporarly disable WDT for the time of recording
         // ESP.wdtDisable();
@@ -922,6 +926,8 @@ static void exec(char *cmdline)
                }; 
               // feed the watchdog
               ESP.wdtFeed();
+              // needed for ESP8266
+              yield();
            };
         // Enable WDT 
         // ESP.wdtEnable(5000);
