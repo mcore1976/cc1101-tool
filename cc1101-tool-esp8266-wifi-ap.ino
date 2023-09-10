@@ -13,8 +13,7 @@
 // Also uses Arduino Command Line interpreter by Edgar Bonet
 // from https://gist.github.com/edgar-bonet/607b387260388be77e96
 //
-// This code will ONLY work with ESP8266 board,
-// WIFI ESP8266 Access Point version
+// This code will ONLY work with ESP8266 board, WIFI version
 //
 
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
@@ -34,17 +33,18 @@ byte ss = 15;      // GPIO 15
 int gdo0 = 5;     // GPIO 5
 int gdo2 = 4;     // GPIO 4
 
-// defining TELNET parameters for TCP stream
+// You need to attach ESP8266 board to your own WIFI router
 #define LED_BUILTIN 2
 #define TCP_PORT (23)                       // Choose any port you want
 WiFiServer tcpserver(TCP_PORT);
 WiFiClient tcpclient ;                      // class for handling incoming telnet connection
 
-// Your ESP8266 board will become WIFI ACCESS POINT with following parameters below
 IPAddress ip(192, 168, 1, 100);             // Local Static IP address
 IPAddress gateway(192, 168, 1, 1);        // Gateway IP address
 IPAddress subnet(255, 255, 255, 0);         // Subnet Mask
 const char ssid[] = "cc1101";              // Change to your ESP8266 AP SSID
+const char password[] = "cc1101";          // Change to your ESP8266 AP Password
+
 
 
 // position in big recording buffer
@@ -778,10 +778,14 @@ static void exec(char *cmdline)
         //start recording to the buffer with bitbanging of GDO0 pin state
         tcpclient.write("\r\nWaiting for radio signal to start RAW recording...\r\n");
         pinMode(gdo0, INPUT);
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();        
 
         // this is only for ESP32 boards because they are getting some noise on the beginning
         setting2 = digitalRead(gdo0);
-        delayMicroseconds(1000);  
+        delay(1);  
             
         // waiting for some data first
         // feed the watchdog while waiting for the RF signal    
@@ -811,6 +815,8 @@ static void exec(char *cmdline)
              bigrecordingbuffer[i] = receivedbyte;
              // feed the watchdog in ESP8266
              ESP.wdtFeed();  
+             // needed for ESP8266
+             yield();            
            }
         // enable WDT 
         // ESP.wdtEnable(5000);
@@ -839,7 +845,11 @@ static void exec(char *cmdline)
         ELECHOUSE_cc1101.SetRx();
         //start recording to the buffer with bitbanging of GDO0 pin state
         tcpclient.write("\r\nSniffer enabled...\r\n");
-        pinMode(gdo0, INPUT);      
+        pinMode(gdo0, INPUT);    
+        // feed the watchdog
+        ESP.wdtFeed();
+        // needed for ESP8266
+        yield();          
 
         // temporarly disable WDT for the time of recording
         // ESP.wdtDisable();       
@@ -860,6 +870,8 @@ static void exec(char *cmdline)
                     bigrecordingbuffer[i] = receivedbyte;
                     // feed the watchdog
                     ESP.wdtFeed();
+                    // needed for ESP8266;
+                    yield();
                   }; 
              // enable WDT 
              // ESP.wdtEnable(5000);        
@@ -911,7 +923,7 @@ static void exec(char *cmdline)
         // feed the watchdog
         ESP.wdtFeed();
         // needed for ESP8266
-        yield();            
+        yield();        
 
         // temporarly disable WDT for the time of recording
         // ESP.wdtDisable();
