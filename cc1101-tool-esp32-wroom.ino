@@ -835,7 +835,7 @@ static void exec(char *cmdline)
            {        // first convert to hex numbers
                     asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
                     // now decode as binary and print
-                    for (setting = 0; setting < 32 ; setting++)
+                    for (setting = 0; setting < 64 ; setting++)
                         {
                         setting2 = textbuffer[setting];
                         switch( setting2 )
