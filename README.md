@@ -329,7 +329,13 @@ Example scenario for WIFI / telnet connection when ESP8266 is WIFI client :
 08.09.2023
 - WIFI Access Point mode to ESP8266 board added - there is a separate source code version with wifi-ap in the name. Before uploading the code you can change an IP address to the module and  SSID for your ESP8266 board. Default is SSID "cc1101" and IP address for telnet "192.168.1.100". This is the simplest scenario, use Connectbot and Telnet protocol to connect to CC1101 board over TCP port 23. ATTENTION ! When using WIFI versions I recommend to set ESP8266 CPU speed to 160 MHz : in arduino IDE - go to Tools, in dropdown list select "CPU Frequency 160MHz" instead of "CPU Frequency 80MHz". 
 
+
+22.11.2023
+Corrected bug in showbit() function, all the thanks go to  jps1x2.
+
+
+
   
-Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason.
+Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason. Keep attention to putting an argument <microseconds> to rxraw, playraw command - otherwise ESP8266 are restarting themselves when wifi in use (stack overflow).
     
     
