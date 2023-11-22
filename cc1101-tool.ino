@@ -225,7 +225,7 @@ static void exec(char *cmdline)
           "addraw <hex-vals> : Manually add chunks (max 60 hex values) to the buffer so they can be further replayed.\r\n\r\n"        
           "showraw : Showing content of recording buffer in RAW format.\r\n\r\n"
           "playraw <microseconds> : Replaying previously recorded RAW RF data with <microsecond> sampling interval.\r\n\r\n"
-          "showbit : Showing content of recording buffer in RAW format as a stream of bits.\r\n\r\n"
+          " : Showing content of recording buffer in RAW format as a stream of bits.\r\n\r\n"
           "save : Store recording buffer content in non-volatile memory\r\n\r\n"
           "load : Load the content from non-volatile memory to the recording buffer\r\n\r\n"
           "echo <mode> : Enable or disable Echo on serial terminal. 1 = enabled, 0 = disabled\r\n\r\n"
@@ -738,7 +738,7 @@ static void exec(char *cmdline)
            {        // first convert to hex numbers
                     asciitohex((byte *)&bigrecordingbuffer[i], (byte *)textbuffer,  32);
                     // now decode as binary and print
-                    for (setting = 0; setting < 32 ; setting++)
+                    for (setting = 0; setting < 64 ; setting++)
                         {
                         setting2 = textbuffer[setting];
                         switch( setting2 )
