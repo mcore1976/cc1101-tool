@@ -972,8 +972,8 @@ static void exec(char *cmdline)
 
     // Handling SCAN command - frequency scanner by Little S@tan !
     } else if (strcmp_P(command, PSTR("scan")) == 0) {
-        settingf1 = atoi(strsep(&cmdline, " "));
-        settingf2 = atoi(cmdline);
+        settingf1 = atof(strsep(&cmdline, " "));
+        settingf2 = atof(cmdline);
         Serial.print(F("\r\nScanning frequency range from : "));
         Serial.print(settingf1);
         Serial.print(F(" MHz to "));
