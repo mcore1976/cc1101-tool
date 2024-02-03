@@ -334,6 +334,9 @@ Example scenario for WIFI / telnet connection when ESP8266 is WIFI client :
 Corrected bug in showbit() function, all the thanks go to  jps1x2.
 
 
+08.02.2024
+Corrected bug in scan() function (not accepting MHz fractions in frequency range), all the thanks go to chris4soft 
+
 
   
 Known Bugs : sometimes RX command does not work correctly after many big frames have been received (in packet mode, not in async mode). This may be due to some memory leak in SmartRC library. Still checking what is the reason. Keep attention to putting an argument <microseconds> to rxraw, playraw command - otherwise ESP8266 are restarting themselves when wifi in use (stack overflow).
