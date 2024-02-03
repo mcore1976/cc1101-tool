@@ -527,8 +527,8 @@ static void exec(char *cmdline)
 
     // Handling SCAN command - frequency scanner by Little S@tan !
     } else if (strcmp_P(command, PSTR("scan")) == 0) {
-        settingf1 = atoi(strsep(&cmdline, " "));
-        settingf2 = atoi(cmdline);
+        settingf1 = atof(strsep(&cmdline, " "));
+        settingf2 = atof(cmdline);
         tcpclient.write("\r\nScanning frequency range from : ");
         // dtostrf(floatValue, minStringWidth, numAfterDecimal, charBuf_to_store_string);                            
         dtostrf(settingf1, 6,2 , destination);          
