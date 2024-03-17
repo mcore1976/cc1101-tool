@@ -3,7 +3,7 @@ RF tool based on CC1101 module and Arduino Pro Micro 8VMHz/3.3V. Allows using CL
 
 You simply connect your Arduino Pro Micro (Arduino Leonardo clone from Sparkfun) to USB port of your PC and launch Putty terminal to communicate with CC1101 module over USB Serial port ( /dev/ttyACM0 port in Linux, COMxx in Windows).
 
-Also you may connect this device to Android OTG USB port in your smartphone for portable hacking and use USB Serial Terminal application with option CDC driver set to communicate with the device ( app : https://play.google.com/store/apps/details?id=de.kai_morich.serial_usb_terminal&hl=pl&gl=US&pli=1 ). When using Serial Terminal app on Android first go to the Settings in the app on your smartphone then upper side of the screen select "Send" and then set "Newline" as CR only. It is sending to many characters to the device and  extra character of Newline sometimes stops some of commands like "rxraw" for example.
+Also you may connect this device to Android OTG USB port in your smartphone for portable hacking and use USB Serial Terminal application with option CDC driver set to communicate with the device ( app : https://play.google.com/store/apps/details?id=de.kai_morich.serial_usb_terminal  ). When using Serial Terminal app on Android first go to the Settings in the app on your smartphone then upper side of the screen select "Send" and then set "Newline" as CR only. It is sending to many characters to the device and  extra character of Newline sometimes stops some of commands like "rxraw" for example.
 
 Following commands are available :
 
