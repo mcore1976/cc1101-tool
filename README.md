@@ -245,6 +245,18 @@ int gdo0 = 7;
 int gdo2 = 6;
 
 
+Attention ! There may be different SPI pins set for your Pico board :
+
+byte miso = 16;
+
+byte ss = 17; 
+
+byte mosi = 19;
+
+byte sck = 18;
+
+
+
 
 --------------------------------------------------------------------------------------
 First version of this project was presented in this video : https://youtu.be/iPVckkTjsd0
